@@ -13,16 +13,27 @@ def find_hosts():
 
     print(hosts_entities)
 
-    # Get the hosts that are mentioned with very high frequency (30x median frequency)
-    sorted_counts = sorted(hosts_entities.values())
-    median_frequency = sorted_counts[len(sorted_counts) // 2] if len(sorted_counts) % 2 != 0 else (sorted_counts[len(sorted_counts) // 2 - 1] + sorted_counts[len(sorted_counts) // 2]) / 2
-    median_frequency += 1
-    significant_hosts = [entity for entity, count in hosts_entities.items() if count > 30 * median_frequency]
-    return significant_hosts if significant_hosts else [max(hosts_entities, key=hosts_entities.get)]
+    # Calculate the mean and standard deviation of the counts
+    counts = list(hosts_entities.values())
+    mean = sum(counts) / len(counts)
+
+    std_dev = (sum((x - mean) ** 2 for x in counts) / len(counts)) ** 0.5
+
+    # Define a threshold as 1.5 standard deviations above the mean
+    threshold = mean + 1.5 * std_dev
+
+    # Get the hosts that are mentioned with frequency above the threshold
+    significant_hosts = [entity for entity, count in hosts_entities.items() if count > threshold]
+
+    # If no hosts meet the threshold, return the most mentioned entity
+    if not significant_hosts:
+        sorted_hosts = sorted(hosts_entities.items(), key=lambda x: x[1], reverse=True)
+        significant_hosts = [entity for entity, _ in sorted_hosts[:1]]
+
+    return significant_hosts
 
 
 def main():
-
     df = preprocess_tweets("gg2013.json")
 
     award_winners_output = extract_all_winners(df, "Best Picture", nominees=[], presenters=[])
