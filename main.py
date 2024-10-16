@@ -1,10 +1,10 @@
 import json
-from preprocessing_utils import preprocess_tweets
-from predictions_utils import extract_all_winners, extract_all_hosts
-from aggregation_utils import aggregate_entities, format_human_readable, named_entity_recognition
+from util_functions.preprocessing_utils import preprocess_tweets
+from util_functions.predictions_utils import extract_all_winners, extract_all_hosts
+from util_functions.aggregation_utils import aggregate_entities, format_human_readable, named_entity_recognition
 
 def find_hosts():
-    df = preprocess_tweets("gg2013.json")
+    df = preprocess_tweets("data/gg2013.json")
 
     hosts_tweets = extract_all_hosts(df)
     hosts_entities = named_entity_recognition(hosts_tweets)
@@ -34,7 +34,7 @@ def find_hosts():
 
 
 def main():
-    df = preprocess_tweets("gg2013.json")
+    df = preprocess_tweets("data/gg2013.json")
 
     award_winners_output = extract_all_winners(df, "Best Picture", nominees=[], presenters=[])
 
