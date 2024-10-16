@@ -63,4 +63,7 @@ def preprocess_tweets(filename):
         lambda x: pd.Series(extract_hashtags_and_links(x))
     )
 
+    # Sort by timestamp
+    df = df.sort_values(by='timestamp')
+
     return df
