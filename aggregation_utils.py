@@ -12,63 +12,104 @@ ENTITIES = [
     'Denzel Washington', 
     'Jonah Hill', 
     'Brad Pitt', 
-    'Amy Poehler'
+    'Amy Poehler',
+    'Tina Fey'
 ]
 
-def extract_entities(input):
+def named_entity_recognition(input):
     '''
-    Extracts entities from the winners of a given award.
+    Extracts entities from the input text using spacy.
 
     Example Input: 
-    {
-        "Award": "Best Picture",
-        "Nominees": [], 
-        "Presenters": [], 
-        "Winners": [
-            {
-                "Name": winner,
-                "Number of Tweets": count
-            },
-            ...
-        ]
-    }
+    [
+        "Anne Hathaway is a great person", 
+        "Jessica Chastain is also great", 
+        ...
+    ]
 
     Example Output: 
     [
-        {'Name': 'Ben Affleck', 'Entities': ['Ben Affleck']},
-        {'Name': 'Anne Hathaway', 'Entities': ['Anne Hathaway']},
-        {'Name': 'Hugh Jackman', 'Entities': ['Hugh Jackman']},
-        {'Name': 'Jennifer Lawrence', 'Entities': ['Jennifer Lawrence']},
-        {'Name': 'Adele', 'Entities': ['Adele']},
-        {'Name': 'when she', 'Entities': []}
+        {
+            'Entity': 'Anne Hathaway', 
+            'Frequency': 2
+        },
+        ...
     ]
     '''
-    winners = sorted(input["Winners"], key=lambda x: x["Number of Tweets"], reverse=True)
+    spacy_model = spacy.load('en_core_web_lg')  # better entity recognition capability than en_core_web_sm
 
-    spacy_model = spacy.load('en_core_web_lg') # better entity recognition capability than en_core_web_sm
+    entity_frequency = {}
 
-    entity_list = []
+    for text in input:
+        doc = spacy_model(text)
+        for entity in doc.ents:
+            if entity.label_ == 'PERSON':
+                entity_frequency[entity.text] = entity_frequency.get(entity.text, 0) + 1
 
-    for i in range(len(winners)):
-        winner_name = winners[i]["Name"]
-        spacy_output = spacy_model(winner_name)
-        # print(f"spacy output: {spacy_output.ents}")
-        # if spacy_output.ents == (): print("NO ENTITY IDENTIFIED")
-        associated_entities = []
-        for entity in spacy_output.ents:
-            # print(f"entity:{entity}")
-            # print([entity.text, entity.label_])
-            # entity_list.append(entity.text)
-            associated_entities.append(entity.text)
-        
-        name_entities = {
-            "Name" : winner_name,
-            "Entities" : associated_entities
+    entity_list = [
+        {
+            'Name': entity,
+            'Number of Tweets': frequency
         }
+        for entity, frequency in entity_frequency.items()
+    ]
+
+    return sorted(entity_list, key=lambda x: x['Number of Tweets'], reverse=True)
+
+# def extract_entities(input):
+#     '''
+#     Extracts entities from the winners of a given award.
+
+#     Example Input: 
+#     {
+#         "Award": "Best Picture",
+#         "Nominees": [], 
+#         "Presenters": [], 
+#         "Winners": [
+#             {
+#                 "Name": winner,
+#                 "Number of Tweets": count
+#             },
+#             ...
+#         ]
+#     }
+
+#     Example Output: 
+#     [
+#         {'Name': 'Ben Affleck', 'Entities': ['Ben Affleck']},
+#         {'Name': 'Anne Hathaway', 'Entities': ['Anne Hathaway']},
+#         {'Name': 'Hugh Jackman', 'Entities': ['Hugh Jackman']},
+#         {'Name': 'Jennifer Lawrence', 'Entities': ['Jennifer Lawrence']},
+#         {'Name': 'Adele', 'Entities': ['Adele']},
+#         {'Name': 'when she', 'Entities': []}
+#     ]
+#     '''
+#     winners = sorted(input["Winners"], key=lambda x: x["Number of Tweets"], reverse=True)
+
+#     spacy_model = spacy.load('en_core_web_lg') # better entity recognition capability than en_core_web_sm
+
+#     entity_list = []
+
+#     for i in range(len(winners)):
+#         winner_name = winners[i]["Name"]
+#         spacy_output = spacy_model(winner_name)
+#         # print(f"spacy output: {spacy_output.ents}")
+#         # if spacy_output.ents == (): print("NO ENTITY IDENTIFIED")
+#         associated_entities = []
+#         for entity in spacy_output.ents:
+#             # print(f"entity:{entity}")
+#             # print([entity.text, entity.label_])
+#             # entity_list.append(entity.text)
+#             associated_entities.append(entity.text)
         
-        entity_list.append(name_entities)
+#         name_entities = {
+#             "Name" : winner_name,
+#             "Entities" : associated_entities
+#         }
         
-    return entity_list
+#         entity_list.append(name_entities)
+        
+#     return entity_list
 
 def token_overlap(query_string, classes):
     """
@@ -115,18 +156,13 @@ def aggregate_entities(input):
     For example, "Anne Hathaway" and "Anne Hathaway (actress)" would be considered the same entity.
 
     Example Input: 
-    {
-        "Award": "Best Picture",
-        "Nominees": [], 
-        "Presenters": [], 
-        "Winners": [
-            {
-                "Name": winner,
-                "Number of Tweets": count
-            },
-            ...
-        ]
-    }
+    [
+        {
+            "Name": winner,
+            "Number of Tweets": count
+        },
+        ...
+    ]
 
     Example Output: 
     {
@@ -142,11 +178,9 @@ def aggregate_entities(input):
     # data structure -> entity : count
     entity_count = {key: 0 for key in ENTITIES} 
 
-    winners = sorted(input["Winners"], key=lambda x: x["Number of Tweets"], reverse=True)
-
     # traverse names in winners
-    for i in range(len(winners)):
-        winner_info = winners[i] # name & tweet count
+    for i in range(len(input)):
+        winner_info = input[i] # name & tweet count
         winner_name = winner_info["Name"]
         winner_count = winner_info["Number of Tweets"]
 

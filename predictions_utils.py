@@ -70,3 +70,10 @@ def extract_all_winners(df, award, nominees=[], presenters=[]):
     output["Winners"] = sorted(output["Winners"], key=lambda x: x["Number of Tweets"], reverse=True)
 
     return output
+
+def extract_all_hosts(df):
+    tweets = df[df['cleaned_text'].str.contains('hosting')]['cleaned_text']
+
+    return tweets.tolist()
+
+
