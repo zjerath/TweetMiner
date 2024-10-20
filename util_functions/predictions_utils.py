@@ -72,7 +72,7 @@ def extract_all_winners(df, award, nominees=[], presenters=[]):
     return output
 
 def extract_all_hosts(df):
-    tweets = df[df['cleaned_text'].str.contains('hosting')]['cleaned_text']
+    tweets = df[df['cleaned_text'].str.contains('host')]['cleaned_text']
 
     return tweets.tolist()
 
