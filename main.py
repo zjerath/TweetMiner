@@ -2,6 +2,7 @@ import json
 from util_functions.preprocessing_utils import preprocess_tweets
 from util_functions.predictions_utils import extract_all_winners, extract_all_hosts
 from util_functions.aggregation_utils import aggregate_entities, format_human_readable, named_entity_recognition
+from util_functions.nomination_utils import extract_all_nominees
 
 def find_hosts():
     df = preprocess_tweets("data/gg2013.json")
@@ -64,6 +65,8 @@ def main():
             award_winners_output
         ]
     }
+
+    print(extract_all_nominees(df, "Best Picture", presenters=[]))
 
     print("Human-readable output:")
     print(format_human_readable(award_winners_final_output))
