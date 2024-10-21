@@ -1,6 +1,6 @@
 import json
 from util_functions.preprocessing_utils import preprocess_tweets
-from util_functions.predictions_utils import extract_all_winners, extract_all_hosts
+from util_functions.predictions_utils import extract_all_winners, extract_all_hosts, extract_all_award_names
 from util_functions.aggregation_utils import aggregate_entities, format_human_readable, named_entity_recognition
 from util_functions.nomination_utils import extract_all_nominees
 
@@ -32,6 +32,33 @@ def find_hosts():
         significant_hosts = [entity for entity, _ in sorted_hosts[:1]]
 
     return significant_hosts
+
+def find_award_names():
+    df = preprocess_tweets("data/gg2013.json")
+
+    award_names = extract_all_award_names(df)
+
+    # Calculate the mean and standard deviation of the counts
+    counts = [award['Number of Tweets'] for award in award_names]
+    mean = sum(counts) / len(counts)
+    std_dev = (sum((x - mean) ** 2 for x in counts) / len(counts)) ** 0.5
+
+    # Define a threshold as 1 standard deviation above the mean
+    threshold = mean + 1 * std_dev
+
+    # Filter awards that are mentioned with frequency above the threshold
+    significant_awards = [award for award in award_names if award['Number of Tweets'] > threshold]
+
+    # Sort the significant awards by number of tweets in descending order
+    significant_awards.sort(key=lambda x: x['Number of Tweets'], reverse=True)
+
+    # Update award_names to only include significant awards
+    award_names = significant_awards
+
+    # TODO: If award contains a name, remove it from the list
+    # TODO: Make sure award capitalization is correct. If not, remove it from the list
+
+    return award_names
 
 
 def main():
@@ -75,7 +102,7 @@ def main():
     print(json.dumps(award_winners_final_output, indent=4))
 
 if __name__ == "__main__":
-    print(find_hosts())
+    print(find_award_names())
 
 
 

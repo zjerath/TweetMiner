@@ -72,8 +72,68 @@ def extract_all_winners(df, award, nominees=[], presenters=[]):
     return output
 
 def extract_all_hosts(df):
-    tweets = df[df['cleaned_text'].str.contains('host')]['cleaned_text']
+    tweets = df[df['cleaned_text'].str.lower().str.contains('host')]['cleaned_text']
 
     return tweets.tolist()
 
+def extract_all_award_names(df):
+    tweets = df[df['cleaned_text'].str.contains('Best')]['cleaned_text']
 
+    # Filter tweets that contain only one 'best'
+    tweets = tweets[tweets.str.count('Best') == 1]
+    
+    # Extract the part of the tweet from 'best' to the end of the sentence or 'goes to', excluding punctuation
+    tweets = tweets.apply(lambda x: re.search(r'best.*?(?=[.!?:]|goes to|win|won)', x, re.IGNORECASE))
+
+    # Filter out tweets containing certain words
+    blacklist_words = ['@', '&', 'golden globes', 'oscars', 'known for', 'speech', 'outfit', 'dress', 'look', 'carpet', 'interview', 'night', 
+                       'joke', 'clip', 'celebration', 'so far', 'of all time', 'of the', 'at the','ever', 'fan', 'surpris', 'buy', 'award', 
+                       'win', 'won', 'nominated', 'hotel']
+    
+    for word in blacklist_words:
+        tweets = tweets[~tweets.apply(lambda x: word.lower() in x.group().lower() if x else False)]
+    
+    # Filter tweets and keep only the part before the second '-' if there are more than one
+    def filter_dashes(tweet):
+        if not tweet:
+            return None
+        parts = tweet.group().split('-')
+        if len(parts) > 1:
+            return f"{parts[0].strip()} - {parts[1].strip()}"
+        return parts[0].strip()
+
+    tweets = tweets.apply(filter_dashes)
+    
+    # Remove any trailing whitespace
+    tweets = tweets.apply(lambda x: x.strip() if x else None)
+
+    # Remove tweets of length 1
+    tweets = tweets[tweets.apply(lambda x: len(x.split()) > 1 if x else False)]
+    
+    # Keep only the matched parts and convert to a list
+    tweets = tweets.dropna().tolist()
+    
+    # Count occurrences of each award name
+    award_counts = {}
+    for tweet in tweets:
+        tweet_lower = tweet.lower()
+        if tweet_lower in award_counts:
+            award_counts[tweet_lower]['count'] += 1
+        else:
+            award_counts[tweet_lower] = {'original': tweet, 'count': 1}
+    
+    # Convert the dictionary to preserve original capitalization
+    award_counts = {v['original']: v['count'] for v in award_counts.values()}
+    
+    # Create list of dictionaries with award names and occurrences
+    award_list = [
+        {
+            "Name": award,
+            "Number of Tweets": count
+        } for award, count in award_counts.items()
+    ]
+    
+    # Sort the list by number of occurrences in descending order
+    award_list = sorted(award_list, key=lambda x: x["Number of Tweets"], reverse=True)
+
+    return award_list
