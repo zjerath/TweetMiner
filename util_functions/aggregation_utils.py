@@ -1,6 +1,9 @@
 import spacy
 import random
 import json
+import nltk
+from nltk.metrics.distance import edit_distance
+from movie_data_utils import create_cast_crew_df
 
 ENTITIES = [
     'Ben Affleck', 
@@ -15,6 +18,25 @@ ENTITIES = [
     'Amy Poehler',
     'Tina Fey'
 ]
+
+'''
+Extract relevant PERSON & MOVIE entities from movies/credits data
+'''
+def retrieve_people_entities(year):
+    crew_df, cast_df = create_cast_crew_df(year)
+    
+    # combine distinct names into list - one for movies, one for people
+    titles = cast_df['title'].unique()
+    cast_names = list(cast_df['name'].unique())
+    crew_names = list(crew_df['name'].unique())
+
+    # ENTITY LISTS
+    movie_entities = list(titles)
+    people_entities = set(cast_names + crew_names)
+
+    return movie_entities, people_entities
+
+
 
 def named_entity_recognition(input):
     '''
@@ -56,60 +78,23 @@ def named_entity_recognition(input):
 
     return sorted(entity_list, key=lambda x: x['Number of Tweets'], reverse=True)
 
-# def extract_entities(input):
-#     '''
-#     Extracts entities from the winners of a given award.
+def compute_edit_distance(string, entity_list):
+    '''
+    For a given string, compute edit distances against all possible entities
+    Returns most similar matches from defined entity list
+    '''
+    entity_similarity_dict = {} # entity : similarity_score
 
-#     Example Input: 
-#     {
-#         "Award": "Best Picture",
-#         "Nominees": [], 
-#         "Presenters": [], 
-#         "Winners": [
-#             {
-#                 "Name": winner,
-#                 "Number of Tweets": count
-#             },
-#             ...
-#         ]
-#     }
+    for entity in entity_list:
+        # print(entity)
+        try:
+            similarity = edit_distance(string.lower(), entity.lower(), transpositions=True)
+            # print(f"Entity: {entity} | Similarity: {similarity}")
+            entity_similarity_dict[entity] = similarity
+        except:
+            pass
 
-#     Example Output: 
-#     [
-#         {'Name': 'Ben Affleck', 'Entities': ['Ben Affleck']},
-#         {'Name': 'Anne Hathaway', 'Entities': ['Anne Hathaway']},
-#         {'Name': 'Hugh Jackman', 'Entities': ['Hugh Jackman']},
-#         {'Name': 'Jennifer Lawrence', 'Entities': ['Jennifer Lawrence']},
-#         {'Name': 'Adele', 'Entities': ['Adele']},
-#         {'Name': 'when she', 'Entities': []}
-#     ]
-#     '''
-#     winners = sorted(input["Winners"], key=lambda x: x["Number of Tweets"], reverse=True)
-
-#     spacy_model = spacy.load('en_core_web_lg') # better entity recognition capability than en_core_web_sm
-
-#     entity_list = []
-
-#     for i in range(len(winners)):
-#         winner_name = winners[i]["Name"]
-#         spacy_output = spacy_model(winner_name)
-#         # print(f"spacy output: {spacy_output.ents}")
-#         # if spacy_output.ents == (): print("NO ENTITY IDENTIFIED")
-#         associated_entities = []
-#         for entity in spacy_output.ents:
-#             # print(f"entity:{entity}")
-#             # print([entity.text, entity.label_])
-#             # entity_list.append(entity.text)
-#             associated_entities.append(entity.text)
-        
-#         name_entities = {
-#             "Name" : winner_name,
-#             "Entities" : associated_entities
-#         }
-        
-#         entity_list.append(name_entities)
-        
-#     return entity_list
+    return sorted( ((v,k) for k,v in entity_similarity_dict.items())) 
 
 def token_overlap(query_string, classes):
     """
@@ -149,6 +134,41 @@ def token_overlap(query_string, classes):
             break
 
     return best_classes
+
+"""
+Given potential winners for an award, extract the top N candidates
+"""
+def aggregate_candidates(potential_winners, entity_list, top_n=5):
+    # data structure -> entity : count
+    entity_count = {} 
+
+    # LIMITING SEARCH TO TOP 50 CANDIDATES
+    winners = sorted(potential_winners["Winners"][:20], key=lambda x: x["Number of Tweets"], reverse=True)
+
+    # traverse names in winners
+    for i in range(len(winners)):
+        winner_info = winners[i] # name & tweet count
+        winner_name = winner_info["Name"]
+        winner_count = winner_info["Number of Tweets"]
+        
+        # identify entities "closest" to winner_name - quantified via similarity metric
+        best_matches = compute_edit_distance(winner_name, entity_list=entity_list)[:top_n]
+        best_match = best_matches[0][1] # [0] for top match, [1] for name
+        
+        # map name to entity, update entity count
+        if best_match in entity_count:
+            entity_count[best_match] += winner_count
+        else:
+            entity_count[best_match] = winner_count  
+
+    # winner = entity w/ highest count
+    candidate_dict = dict(sorted(entity_count.items(), key=lambda item: item[1], reverse=True))
+    
+    nominees = list(candidate_dict.keys())[:top_n]
+    winner = nominees[0]
+    nominees.remove(winner)
+    
+    return nominees, winner
 
 def aggregate_entities(input):
     '''
@@ -203,6 +223,7 @@ def aggregate_entities(input):
 
     # winner = entity w/ highest count
     return dict(sorted(entity_count.items(), key=lambda item: item[1], reverse=True))
+
 
 def format_human_readable(input):
     '''
