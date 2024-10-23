@@ -60,6 +60,8 @@ def extract_potential_winners(text, award):
         r'(\w+(?:\s+\w+)?)\s+' + just_variations + r'awarded\s+(?!' + award + ')',
         r'(\w+(?:\s+\w+)?)\s+' + just_variations + r'receives\s+(?!' + award + ')',
         r'(\w+(?:\s+\w+)?)\s+' + just_variations + r'received\s+(?!' + award + ')'
+        # Regex pattern to capture "award - winner -" format
+        r'(\w+(?:\s+\w+)?)\s+-\s+' + re.escape(award) + r'\s+-',
     ]
     winners = []
     for pattern in winner_patterns:
@@ -123,6 +125,17 @@ def extract_all_winners(df, award, nominees=[], presenters=[]):
 
 def extract_all_hosts(df):
     tweets = df[df['cleaned_text'].str.lower().str.contains('host')]['cleaned_text']
+
+    return tweets.tolist()
+
+def extract_all_presenters(df, award):
+    tweets = df[df['cleaned_text'].str.lower().str.contains('present')]['cleaned_text']
+
+    def remove_punctuation(text):
+        return ''.join(char for char in text if char.isalnum() or char.isspace())
+
+    # filter tweets that contain the award name without punctuation
+    tweets = tweets[tweets.apply(lambda x: remove_punctuation(award).lower() in remove_punctuation(x).lower())]
 
     return tweets.tolist()
 
