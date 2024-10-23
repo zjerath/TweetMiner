@@ -191,8 +191,6 @@ def main():
         ]
     }
 
-    print(extract_all_nominees(df, "Best Picture", presenters=[]))
-
     print("Human-readable output:")
     print(format_human_readable(award_winners_final_output))
     
