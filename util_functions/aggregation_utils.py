@@ -3,26 +3,14 @@ import random
 import json
 import nltk
 from nltk.metrics.distance import edit_distance
-from movie_data_utils import create_cast_crew_df
+from util_functions.movie_data_utils import create_cast_crew_df
 
-ENTITIES = [
-    'Ben Affleck', 
-    'Anne Hathaway', 
-    'Julianne Moore', 
-    'Adele', 
-    'Jessica Chastain', 
-    'Daniel Day-Lewis', 
-    'Denzel Washington', 
-    'Jonah Hill', 
-    'Brad Pitt', 
-    'Amy Poehler',
-    'Tina Fey'
-]
+
 
 '''
 Extract relevant PERSON & MOVIE entities from movies/credits data
 '''
-def retrieve_people_entities(year):
+def define_entities(year):
     crew_df, cast_df = create_cast_crew_df(year)
     
     # combine distinct names into list - one for movies, one for people
@@ -35,7 +23,6 @@ def retrieve_people_entities(year):
     people_entities = set(cast_names + crew_names)
 
     return movie_entities, people_entities
-
 
 
 def named_entity_recognition(input):
@@ -136,7 +123,7 @@ def token_overlap(query_string, classes):
     return best_classes
 
 """
-Given potential winners for an award, extract the top N candidates
+Given potential winners for an award, extract the top N candidates and winner
 """
 def aggregate_candidates(potential_winners, entity_list, top_n=5):
     # data structure -> entity : count
@@ -170,7 +157,8 @@ def aggregate_candidates(potential_winners, entity_list, top_n=5):
     
     return nominees, winner
 
-def aggregate_entities(input):
+
+def aggregate_entities(candidates, entity_list):
     '''
     Aggregates entities from the winners of a given award if some entities are named differently.
     For example, "Anne Hathaway" and "Anne Hathaway (actress)" would be considered the same entity.
@@ -192,34 +180,27 @@ def aggregate_entities(input):
     }
     '''
 
-    # data structure -> entity : [different names]
-    entity_names = {key: [] for key in ENTITIES}
-
     # data structure -> entity : count
-    entity_count = {key: 0 for key in ENTITIES} 
+    entity_count = {} 
+
+    # LIMITING SEARCH TO TOP 50 CANDIDATES
+    significant_candidates = candidates[:50]
 
     # traverse names in winners
-    for i in range(len(input)):
-        winner_info = input[i] # name & tweet count
-        winner_name = winner_info["Name"]
-        winner_count = winner_info["Number of Tweets"]
-
-        # print(winner_info)
+    for i in range(len(significant_candidates)):
+        candidate_info = significant_candidates[i] # name & tweet count
+        candidate_name = candidate_info["Name"]
+        candidate_count = candidate_info["Number of Tweets"]
         
-        # identify entities "closest" to winner_name - replace token_overlap w/ any similarity metric
-        candidate_entities = token_overlap(winner_name, classes=ENTITIES) 
+        # identify entities "closest" to winner_name
+        best_matches = compute_edit_distance(candidate_name, entity_list=entity_list) 
+        best_match = best_matches[0][1]
             
-        # don't map if no entity recognized
-        if len(candidate_entities) == 0: continue
-        
-        # typically single candidate identified, but in case multiple top candidates named pick random - should probably change
-        identified_entity = random.choice(candidate_entities) 
-        
-        # print(f"Name: {winner_name} | Candidate entities: {candidate_entities} | Identified entity: {identified_entity}")
-
         # map name to entity, update entity count
-        entity_names[identified_entity].append(winner_name)
-        entity_count[identified_entity] += winner_count
+        if best_match in entity_count:
+            entity_count[best_match] += candidate_count
+        else:
+            entity_count[best_match] = candidate_count  
 
     # winner = entity w/ highest count
     return dict(sorted(entity_count.items(), key=lambda item: item[1], reverse=True))
