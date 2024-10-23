@@ -1,7 +1,16 @@
 import json
+import pandas as pd
 from util_functions.preprocessing_utils import preprocess_tweets
-from util_functions.predictions_utils import extract_all_winners, extract_all_hosts, extract_all_award_names, extract_all_nominees
-from util_functions.aggregation_utils import aggregate_candidates, aggregate_entities, format_human_readable, named_entity_recognition, define_entities
+from util_functions.predictions_utils import extract_all_winners, extract_all_hosts, extract_all_award_names, extract_all_nominees, extract_all_presenters
+from util_functions.aggregation_utils import aggregate_candidates, aggregate_entities, format_human_readable, named_entity_recognition, define_entities, is_person_name
+
+def import_data():
+    with open("data/gg2013answers.json", 'r') as f:
+        answers_data = json.load(f)
+    hosts = answers_data['hosts']
+    award_data = answers_data['award_data']
+
+    return hosts, award_data
 
 def find_hosts():
     # Define entity list of people which host could come from
@@ -78,6 +87,37 @@ def get_award_winner(award_name, year):
     print(f"Nominees for {award_name}: {nominees}")
     print(f"Winner of {award_name}: {winner}")
 
+def get_award_presenters(df, award_name, hosts):
+    presenters = extract_all_presenters(df, award_name)
+    presenters_entities = named_entity_recognition(presenters)
+
+    # Filter out non-person names
+    presenters_entities = [entity for entity in presenters_entities if is_person_name(entity['Name'])]
+
+    # Filter out hosts
+    presenters_entities = [presenter for presenter in presenters_entities if presenter['Name'] not in hosts]
+
+    # Sort presenters by number of mentions in descending order and take the top 3
+    presenters_entities = sorted(presenters_entities, key=lambda x: x['Number of Tweets'], reverse=True)[:3]
+
+    return presenters_entities
+
+def get_presenters(award_names):
+    hosts, _ = import_data()
+
+    df = preprocess_tweets("data/gg2013.json")
+
+    presenters = []
+    for award in award_names:
+        award_presenters = get_award_presenters(df, award, hosts)
+        presenters.append({
+            "Award Name": award,
+            "Presenters": [presenter['Name'] for presenter in award_presenters]
+        })
+
+    return presenters
+
+
 def main():
     df = preprocess_tweets("data/gg2013.json")
 
@@ -119,14 +159,20 @@ def main():
     print(json.dumps(award_winners_final_output, indent=4))
 
 if __name__ == "__main__":
-    print("HOSTS...")
-    print(find_hosts())
-    print("AWARDS...")
-    print(find_award_names())
+    hosts, award_data = import_data()
+
+    print('PRESENTERS...')
+    presenters = get_presenters(award_data.keys())
+    print(presenters)
+
+    # print("HOSTS...")
+    # print(find_hosts())
+    # print("AWARDS...")
+    # print(find_award_names())
     
-    award_name = 'best director - motion picture'
-    print(f"AWARD: {award_name}")
-    get_award_winner(award_name=award_name, year=2013)
+    # award_name = 'best director - motion picture'
+    # print(f"AWARD: {award_name}")
+    # get_award_winner(award_name=award_name, year=2013)
 
 
 

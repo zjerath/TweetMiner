@@ -2,6 +2,7 @@ import spacy
 import random
 import json
 import nltk
+import re
 from nltk.metrics.distance import edit_distance
 from util_functions.movie_data_utils import create_cast_crew_df
 
@@ -204,6 +205,25 @@ def aggregate_entities(candidates, entity_list):
 
     # winner = entity w/ highest count
     return dict(sorted(entity_count.items(), key=lambda item: item[1], reverse=True))
+
+def is_person_name(text):
+    '''
+    Returns True if the input string is a person name, False otherwise.
+    '''
+
+    if 'RT @' in text:
+        return False
+    
+    # Load the English language model
+    nlp = spacy.load("en_core_web_lg")
+
+    # Use spaCy for named entity recognition
+    doc = nlp(text)
+        
+    # Check if any entity is labeled as a person
+    if any(ent.label_ == "PERSON" for ent in doc.ents):
+        return True
+    return False
 
 
 def format_human_readable(input):
