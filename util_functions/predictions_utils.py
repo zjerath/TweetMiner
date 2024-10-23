@@ -32,21 +32,30 @@ def extract_all_nominees(df, award, presenters=[]):
     df['potential_nominees'] = df['clean_text'].apply(lambda x: extract_potential_nominees(x, award))
 
     all_nominees = df['potential_nominees'].dropna()
-    nominee_list = []
+    nominee_counts = {}
 
     for nominees in all_nominees:
         if nominees:  # Check if the list is not empty
-            nominee_list.extend(nominees)
-
-    # Remove duplicates by converting to a set and then back to a list
-    nominee_list = list(set(nominee_list))
+            for nominee in nominees:
+                if nominee in nominee_counts:
+                    nominee_counts[nominee] += 1
+                else:
+                    nominee_counts[nominee] = 1
 
     # Create the JSON structure
     output = {
         "Award": award,
-        "Nominees": nominee_list,
-        "Presenters": presenters,  # We don't have presenter information in the current data
+        "Nominees": [
+            {
+                "Name": nominee,
+                "Number of Tweets": count
+            } for nominee, count in nominee_counts.items()
+        ],
+        "Presenters": presenters
     }
+
+    # Sort the nominees by number of tweets in descending order
+    output["Nominees"] = sorted(output["Nominees"], key=lambda x: x["Number of Tweets"], reverse=True)
 
     return output
 
