@@ -1,17 +1,19 @@
 import json
 from util_functions.preprocessing_utils import preprocess_tweets
 from util_functions.predictions_utils import extract_all_winners, extract_all_hosts, extract_all_award_names, extract_all_nominees
-from util_functions.aggregation_utils import aggregate_entities, format_human_readable, named_entity_recognition
+from util_functions.aggregation_utils import aggregate_candidates, aggregate_entities, format_human_readable, named_entity_recognition, define_entities
 
 def find_hosts():
+    # Define entity list of people which host could come from
+    year = 2013
+    _, people_entities = define_entities(year)
+
     df = preprocess_tweets("data/gg2013.json")
 
     hosts_tweets = extract_all_hosts(df)
     hosts_entities = named_entity_recognition(hosts_tweets)
 
-    hosts_entities = aggregate_entities(hosts_entities)
-
-    print(hosts_entities)
+    hosts_entities = aggregate_entities(hosts_entities, people_entities)
 
     # Calculate the mean and standard deviation of the counts
     counts = list(hosts_entities.values())
@@ -27,11 +29,12 @@ def find_hosts():
 
     # If no hosts meet the threshold, return the most mentioned entity
     if not significant_hosts:
-        sorted_hosts = sorted(hosts_entities.items(), key=lambda x: x[1], reverse=True)
-        significant_hosts = [entity for entity, _ in sorted_hosts[:1]]
-
+        sorted_candidates = sorted(hosts_entities.items(), key=lambda x: x[1], reverse=True)
+        significant_hosts = [entity for entity, _ in sorted_candidates[:1]]
+    
     return significant_hosts
 
+    
 def find_award_names():
     df = preprocess_tweets("data/gg2013.json")
 
@@ -59,6 +62,21 @@ def find_award_names():
 
     return award_names
 
+def get_award_winner(award_name, year):
+    # award_name = 'best director - motion picture'
+    # ground truth data -> data['award_data'][award_name]
+
+    # year = 2013
+    _, people_entities = define_entities(year)
+
+    df = preprocess_tweets("data/gg2013.json")
+
+    potential_award_winners = extract_all_winners(df, award=award_name, nominees=[], presenters=[])
+
+    nominees, winner = aggregate_candidates(potential_winners=potential_award_winners, entity_list=people_entities)
+
+    print(f"Nominees for {award_name}: {nominees}")
+    print(f"Winner of {award_name}: {winner}")
 
 def main():
     df = preprocess_tweets("data/gg2013.json")
@@ -101,7 +119,14 @@ def main():
     print(json.dumps(award_winners_final_output, indent=4))
 
 if __name__ == "__main__":
+    print("HOSTS...")
+    print(find_hosts())
+    print("AWARDS...")
     print(find_award_names())
+    
+    award_name = 'best director - motion picture'
+    print(f"AWARD: {award_name}")
+    get_award_winner(award_name=award_name, year=2013)
 
 
 

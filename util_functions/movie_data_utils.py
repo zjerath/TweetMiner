@@ -30,8 +30,8 @@ def create_cast_crew_df(year):
 # create combined df w/ movies & credits
 def create_movies_credits_df(year):
     # declare file paths
-    movies_metadata_path = os.path.join(os.path.dirname(os.path.abspath('')), 'data', 'movies_metadata.csv')
-    credits_path = os.path.join(os.path.dirname(os.path.abspath('')), 'data', 'credits.csv')
+    movies_metadata_path = os.path.join(os.path.dirname(os.path.abspath('')), 'TweetMiner', 'data', 'movies_metadata.csv')
+    credits_path = os.path.join(os.path.dirname(os.path.abspath('')), 'TweetMiner', 'data', 'credits.csv')
 
     movies = pd.read_csv(movies_metadata_path)
     credits = pd.read_csv(credits_path)
