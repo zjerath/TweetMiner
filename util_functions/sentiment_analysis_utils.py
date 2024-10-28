@@ -30,9 +30,20 @@ def analyze_best_worst_dressed(df):
         sentiment = sid.polarity_scores(text)['compound']
         
         # Extract names
-        name_patterns = [r'(\w+(?:\s+\w+)?)\s+(?:looked|was|is)\s+(?:stunning|gorgeous|beautiful|awful|terrible)',
-                         r'(?:best|worst)\s+dressed\s+(\w+(?:\s+\w+)?)',
-                         r'(\w+(?:\s+\w+)?)\s+in\s+(?:an\s+)?(?:outfit|dress)']
+        name_patterns = [
+            r'(\w+(?:\s+\w+)?)\s+is\s+(?:one\s+of\s+the\s+)?best\s+dressed',
+            r'(\w+(?:\s+\w+)?)\s+looked\s+(?:absolutely\s+)?(?:stunning|gorgeous|elegant|amazing)',
+            r'best\s+dressed\s+goes\s+to\s+(\w+(?:\s+\w+)?)',
+            r'(\w+(?:\s+\w+)?)\s+in\s+(?:a\s+)?(?:stunning|gorgeous|elegant|beautiful)\s+outfit',
+            r'(\w+(?:\s+\w+)?)\s+worst\s+dressed',
+            r'(\w+(?:\s+\w+)?)\s+looked\s+(?:absolutely\s+)?(?:terrible|awful|bad|horrible)',
+            r'worst\s+dressed\s+goes\s+to\s+(\w+(?:\s+\w+)?)',
+            r'(\w+(?:\s+\w+)?)\s+in\s+(?:a\s+)?(?:terrible|awful|ugly|hideous)\s+(?:dress|outfit|gown)',
+            r'(\w+(?:\s+\w+)?)\s+wearing\s+(?:a\s+)?(?:beautiful|stunning|gorgeous)\s+(?:dress|gown)',
+            r'(\w+(?:\s+\w+)?)\s+(?:dress|outfit|gown)\s+is\s+(?:beautiful|stunning|gorgeous)',
+            r'(\w+(?:\s+\w+)?)\s+fashion\s+(?:win|fail)',
+            r'(\w+(?:\s+\w+)?)\s+(?:nailed|failed)\s+(?:it|the\s+look)'
+    ]
         
         for pattern in name_patterns:
             matches = re.findall(pattern, text, re.IGNORECASE)
