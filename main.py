@@ -3,6 +3,7 @@ import pandas as pd
 from util_functions.preprocessing_utils import preprocess_tweets
 from util_functions.predictions_utils import extract_all_winners, extract_all_hosts, extract_all_award_names, extract_all_nominees, extract_all_presenters
 from util_functions.aggregation_utils import aggregate_candidates, aggregate_entities, format_human_readable, named_entity_recognition, define_entities, is_person_name
+from util_functions.sentiment_analysis_utils import analyze_best_worst_dressed
 
 def import_data():
     with open("data/gg2013answers.json", 'r') as f:
@@ -197,12 +198,19 @@ def main():
     print("\nJSON output:")
     print(json.dumps(award_winners_final_output, indent=4))
 
+def analyze_best_dressed():
+    df = preprocess_tweets("data/gg2013.json")
+    return analyze_best_worst_dressed(df)
+
 if __name__ == "__main__":
     hosts, award_data = import_data()
 
-    print('PRESENTERS...')
-    presenters = get_presenters(award_data.keys())
-    print(presenters)
+    print("BEST DRESSED...")
+    print(analyze_best_dressed())
+
+    # print('PRESENTERS...')
+    # presenters = get_presenters(award_data.keys())
+    # print(presenters)
 
     # print("HOSTS...")
     # print(find_hosts())
