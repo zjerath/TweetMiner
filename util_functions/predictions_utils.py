@@ -1,7 +1,11 @@
 import re
 import spacy
+
 nlp = spacy.load("en_core_web_lg")
 
+# Function to remove punctuation from text
+# This is useful because award names are sometimes found without punctuation
+# For example, "Best Screenplay - Drama" is sometimes found as "Best Screenplay Drama" or "Best Screenplay: Drama"
 def remove_punctuation(text):
     return ''.join(char for char in text if char.isalnum() or char.isspace())
 
@@ -13,15 +17,12 @@ def extract_potential_nominees(text, award):
         r'(\w+(?:\s+\w+)?)\s+has\s+been\s+nominated\s+for\s+',
         r'nominee\s+(\w+(?:\s+\w+)?)\s+for\s+'
     ]
-    
-    def remove_punctuation(text):
-            return ''.join(char for char in text if char.isalnum() or char.isspace())
 
     nominees = []
-    # if remove_punctuation(award[:len(award)]).lower() in remove_punctuation(text).lower():
+
     if remove_punctuation(award).lower() in remove_punctuation(text).lower():
         for pattern in nominee_patterns:
-            # filter tweets that contain the award name without punctuation
+            # Filter tweets that contain the award name without punctuation
             matches = re.findall(pattern, text, re.IGNORECASE)
             nominees.extend(matches)
     return nominees
@@ -59,11 +60,11 @@ def extract_all_nominees(df, award):
                 else:
                     nominee_counts[nominee] = 3
 
-    # Filter tweets containing award name (without punctuation)
+    # Filter tweets containing award name (without punctuation for lower sensitivity)
     clean_award = remove_punctuation(award).lower()
     filtered_df = df[df['clean_text'].apply(lambda x: clean_award in remove_punctuation(x).lower())]
 
-    # Remove RT @ mentions and award name from tweets. These entities are picked up by NER. 
+    # Remove RT @ mentions and award name from tweets. These entities are picked up by NER, but are not real nominees. 
     filtered_df = filtered_df.copy()  
     filtered_df.loc[:, 'clean_text'] = filtered_df['clean_text'].str.replace('RT @\w+', '', regex=True)
     filtered_df.loc[:, 'clean_text'] = filtered_df['clean_text'].str.replace(clean_award, '', regex=False)
@@ -73,7 +74,7 @@ def extract_all_nominees(df, award):
     for _, row in filtered_df.iterrows():
         doc = nlp(row['clean_text'])
         for ent in doc.ents:
-            # Determine the entity type based on the award name check
+            # Determine the entity type based on the award name check. Do not nominate people for non-person awards (like best screenplay).
             if (is_person_award and ent.label_ == 'PERSON') or (not is_person_award and ent.label_ == 'WORK_OF_ART'):
                 name = ent.text
                 if name not in nominee_counts:
@@ -112,7 +113,7 @@ def extract_potential_winners(text, award):
     ]
     winners = []
     for pattern in winner_patterns:
-        # Remove stop words from pattern
+        # Remove stop words from pattern, to reduce sensitivity in the regex
         stop_words = {'a', 'an', 'and', 'are', 'as', 'at', 'be', 'by', 'for', 'from', 'has', 'he', 'in', 'is', 'it',
                      'its', 'of', 'on', 'that', 'the', 'to', 'was', 'were', 'will', 'with', 'the', 'this', 'but', 'they',
                      'have', 'had', 'what', 'when', 'where', 'who', 'which', 'why', 'how'}
@@ -177,7 +178,7 @@ def extract_winners(df, award, nominees):
     return output
 
 def extract_all_winners(df, awards, nominees):
-    # extract winners given awards and nominees
+    # Extract winners given awards and nominees
     all_winners = []
     for award, nominee in zip(awards, nominees):
         all_winners.append(extract_winners(df, award, nominee))
@@ -191,7 +192,9 @@ def extract_all_hosts(df):
 def extract_all_presenters(df, award):
     tweets = df[df['cleaned_text'].str.lower().str.contains('present')]['cleaned_text']
 
-    # filter tweets that contain the award name without punctuation
+    # Filter tweets that contain the award name without punctuation. 
+    # Many times, presenters are mentioned in tweets written by individual people. 
+    # These people tend to not use the full official award name, and miss the hyphens and other punctuation in the award name. 
     tweets = tweets[tweets.apply(lambda x: remove_punctuation(award[:len(award)]).lower() in remove_punctuation(x).lower())]
 
     return tweets.tolist()
@@ -199,13 +202,13 @@ def extract_all_presenters(df, award):
 def extract_all_award_names(df):
     tweets = df[df['cleaned_text'].str.contains('Best')]['cleaned_text']
 
-    # Filter tweets that contain only one 'best'
+    # Filter tweets that contain only one 'best'. Almost all awards start with 'best'. 
     tweets = tweets[tweets.str.count('Best') == 1]
     
     # Extract the part of the tweet from 'best' to the end of the sentence or 'goes to', excluding punctuation
     tweets = tweets.apply(lambda x: re.search(r'best.*?(?=[.!?:]|goes to|win|won)', x, re.IGNORECASE))
 
-    # Filter out tweets containing certain words
+    # Filter out tweets containing certain words. These words are never seen in award names. 
     blacklist_words = ['@', '&', 'golden globes', 'oscars', 'known for', 'speech', 'outfit', 'dress', 'look', 'carpet', 'interview', 'night', 
                        'joke', 'clip', 'celebration', 'so far', 'of all time', 'of the', 'at the','ever', 'fan', 'surpris', 'buy', 'award', 
                        'win', 'won', 'nominated', 'hotel']
@@ -213,7 +216,7 @@ def extract_all_award_names(df):
     for word in blacklist_words:
         tweets = tweets[~tweets.apply(lambda x: word.lower() in x.group().lower() if x else False)]
     
-    # Filter tweets and keep only the part before the second '-' if there are more than one
+    # Filter tweets and keep only the part before the second '-' if there are more than one. Award names have at most one hyphen. 
     def filter_dashes(tweet):
         if not tweet:
             return None
@@ -227,7 +230,7 @@ def extract_all_award_names(df):
     # Remove any trailing whitespace
     tweets = tweets.apply(lambda x: x.strip() if x else None)
 
-    # Remove tweets of length 1
+    # Remove tweets of length 1. No award names are of length 1. 
     tweets = tweets[tweets.apply(lambda x: len(x.split()) > 1 if x else False)]
     
     # Keep only the matched parts and convert to a list
