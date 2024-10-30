@@ -2,8 +2,8 @@ import json
 import sys
 import pandas as pd
 from util_functions.preprocessing_utils import preprocess_tweets
-from util_functions.predictions_utils import extract_winners, extract_all_winners, extract_all_hosts, extract_all_award_names, extract_all_nominees, extract_all_presenters, extract_potential_nominees
-from util_functions.aggregation_utils import aggregate_candidates, aggregate_entities, format_human_readable, named_entity_recognition, define_entities, is_person_name
+from util_functions.predictions_utils import extract_winners, extract_all_hosts, extract_all_award_names, extract_all_nominees, extract_all_presenters
+from util_functions.aggregation_utils import aggregate_entities, named_entity_recognition, is_person_name
 from util_functions.sentiment_analysis_utils import analyze_best_worst_dressed
 
 def import_data():
@@ -77,7 +77,9 @@ def find_nominees(df, award, top_n):
     #for award in awards:
     award_nominees = extract_all_nominees(df, award)
     # Get the top 6 nominees
-    top_nominees = award_nominees["Nominees"][:top_n]
+    nominees = award_nominees["Nominees"]
+    nominee_names = [nominee["Name"] for nominee in nominees]
+    top_nominees = nominee_names[:top_n]
     # Store the result in the list
     '''top_nominees_by_award.append({
         "Award": award,
@@ -239,22 +241,14 @@ def cascading_output(df):
 # To call main, use command 'python main.py {year} {bool}'
 # e.g. 'python main.py 2013 True' calls main with 2013 data and hardcoded award names
 def main(year, use_hardcoded=False):
-    # This is for hard-coded stuff to prevent cascading error
-    with open(f"data/gg{year}answers.json", 'r') as f:
-        answers_data = json.load(f)
-    hardcoded_awards_data = answers_data['award_data']
-    hardcoded_award_names = list(hardcoded_awards_data.keys())
-    # hardcoded_award_names = [name for name in hardcoded_award_names if 'best' in name]
-    # hardcoded_nominees = [hardcoded_awards_data[award]['nominees'] + [hardcoded_awards_data[award]['winner']] for award in hardcoded_award_names]
-    
     df = preprocess_tweets(f"data/gg{year}.json")
-
-    '''print(f"nominees for {hardcoded_award_names[0]}")
-    nominees = find_nominees(df, hardcoded_award_names[0], 6)
-    print(nominees)'''
-    
     # If use_hardcoded, use the hardcoded award names to prevent cascading error
     if use_hardcoded:
+        # This is for hard-coded stuff to prevent cascading error
+        with open(f"data/gg{year}answers.json", 'r') as f:
+            answers_data = json.load(f)
+        hardcoded_awards_data = answers_data['award_data']
+        hardcoded_award_names = list(hardcoded_awards_data.keys())
         hardcoded_output(df, hardcoded_award_names)
     # If nothing specified, use our raw implementation for everything
     else:

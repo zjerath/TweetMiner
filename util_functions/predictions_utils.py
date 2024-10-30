@@ -40,6 +40,11 @@ def extract_all_nominees(df, award):
         "Nominees": [{"Name": "Nominee 1", "Number of Tweets": 10}, {"Name": "Nominee 2", "Number of Tweets": 5}, ...]
     }
     '''
+    # Check if any keywords are in the award name
+    keywords = ['actor', 'actress', 'performance', 'director']
+    award_lower = award.lower()
+    is_person_award = any(keyword in award_lower for keyword in keywords)
+
     # Apply the extraction function to the 'clean_text' column
     df['potential_nominees'] = df['clean_text'].apply(lambda x: extract_potential_nominees(x, award))
 
@@ -68,7 +73,8 @@ def extract_all_nominees(df, award):
     for _, row in filtered_df.iterrows():
         doc = nlp(row['clean_text'])
         for ent in doc.ents:
-            if ent.label_ in ['PERSON', 'WORK_OF_ART']:
+            # Determine the entity type based on the award name check
+            if (is_person_award and ent.label_ == 'PERSON') or (not is_person_award and ent.label_ == 'WORK_OF_ART'):
                 name = ent.text
                 if name not in nominee_counts:
                     nominee_counts[name] = 0
@@ -171,6 +177,7 @@ def extract_winners(df, award, nominees):
     return output
 
 def extract_all_winners(df, awards, nominees):
+    # extract winners given awards and nominees
     all_winners = []
     for award, nominee in zip(awards, nominees):
         all_winners.append(extract_winners(df, award, nominee))
