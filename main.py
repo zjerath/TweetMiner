@@ -42,7 +42,22 @@ def find_hosts(df):
         return significant_hosts
         # Sort the significant hosts by count in descending order 
     significant_hosts.sort(key=lambda x: x[1], reverse=True) 
-    return significant_hosts
+
+    # Process each host entry to merge partial names with full names
+    host_counts = {}
+    for name, count in significant_hosts:
+        added = False
+        for existing_name in list(host_counts.keys()):
+            if name in existing_name or existing_name in name:
+                host_counts[existing_name] += count
+                added = True
+                break
+        if not added:
+            host_counts[name] = host_counts.get(name, 0) + count
+
+    # Sort the hosts by count in descending order
+    sorted_hosts = sorted(host_counts.items(), key=lambda x: x[1], reverse=True)
+    return sorted_hosts[:2] if len(sorted_hosts) > 2 else sorted_hosts
     
     
     # # Get the hosts that are mentioned with frequency above the threshold
@@ -55,19 +70,19 @@ def find_hosts(df):
     
     # return significant_hosts
 
-def find_nominees(df, awards, top_n):
+def find_nominees(df, award, top_n):
     # takes in the preprocessed df and hard-coded list of awards
-    top_nominees_by_award = []
-    for award in awards:
-        award_nominees = extract_all_nominees(df, award)
-        # Get the top 5 nominees
-        top_nominees = award_nominees["Nominees"][:top_n]
-        # Store the result in the list
-        top_nominees_by_award.append({
-            "Award": award,
-            f"Top {top_n} Nominees": top_nominees
-        })
-    return top_nominees_by_award
+    #top_nominees_by_award = []
+    #for award in awards:
+    award_nominees = extract_all_nominees(df, award)
+    # Get the top 6 nominees
+    top_nominees = award_nominees["Nominees"][:top_n]
+    # Store the result in the list
+    '''top_nominees_by_award.append({
+        "Award": award,
+        f"Top {top_n} Nominees": top_nominees
+    })'''
+    return top_nominees
     
 def find_award_names(df):
     
@@ -95,42 +110,28 @@ def find_award_names(df):
 
     return award_names
 
-def get_award_winners(df, awards, nominees):
-    award_winners = []
-    for award, nominee in zip(awards, nominees):
-        print("Processing award", award)
-        potential_award_winners = extract_winners(df, award, nominee)
+def get_award_winner(df, award, nominees):
+    potential_award_winners = extract_winners(df, award, nominees)
 
-        print("Potential award winners", potential_award_winners)
+    candidate_dict = {winner["Name"]: winner["Number of Tweets"] for winner in potential_award_winners["Winners"]}
+    candidate_dict = dict(sorted(candidate_dict.items(), key=lambda item: item[1], reverse=True))
 
-        candidate_dict = {winner["Name"]: winner["Number of Tweets"] for winner in potential_award_winners["Winners"]}
-        candidate_dict = dict(sorted(candidate_dict.items(), key=lambda item: item[1], reverse=True))
+    potential_winners = list(candidate_dict.keys())[:6]
 
-        potential_winners = list(candidate_dict.keys())[:6]
+    # Find winner that exists in both nominee list and potential winners
+    valid_winners = [w for w in potential_winners if w in nominees]
+    
+    if valid_winners:
+        # Get winner with highest count from valid winners
+        winner = max(valid_winners, key=lambda x: candidate_dict[x])
+        # Ensure winner is in nominees list
+        if winner not in nominees:
+            nominees.append(winner)
+    else:
+        # Fallback if no valid winner found
+        winner = potential_winners[0] if potential_winners else "Unknown"
 
-        # Find winner that exists in both nominee list and potential winners
-        valid_winners = [w for w in potential_winners if w in nominee]
-        
-        if valid_winners:
-            # Get winner with highest count from valid winners
-            winner = max(valid_winners, key=lambda x: candidate_dict[x])
-            # Ensure winner is in nominees list
-            if winner not in nominee:
-                nominee.append(winner)
-        else:
-            # Fallback if no valid winner found
-            winner = potential_winners[0] if potential_winners else "Unknown"
-            
-        award_winners.append({
-            "Award": award,
-            "Nominees": nominee,
-            "Winner": winner
-        })
-
-        print(f"Nominees for {award}: {nominee}")
-        print(f"Winner of {award}: {winner}")
-
-    return award_winners
+    return winner
 
 def get_award_presenters(df, award_name, hosts):
     presenters = extract_all_presenters(df, award_name)
@@ -147,7 +148,7 @@ def get_award_presenters(df, award_name, hosts):
 
     return presenters_entities
 
-def get_presenters(df, award_names, hosts):
+'''def get_presenters(df, award_names, hosts):
     presenters = []
     for award in award_names:
         award_presenters = get_award_presenters(df, award, hosts)
@@ -156,28 +157,101 @@ def get_presenters(df, award_names, hosts):
             "Presenters": [presenter['Name'] for presenter in award_presenters]
         })
 
-    return presenters
+    return presenters'''
 
+# Function to use a hardcoded list of the awards and nominees to avoid cascading error
+'''This function DOES NOT output award names found by us. To see the answers with our
+generated award names included, must use the cascading_output function''' 
+def hardcoded_output(df, hardcoded_award_names):
+    # Hosts
+    print("Processing Hosts")
+    hosts = find_hosts(df)
+    host_names = [host[0] for host in hosts]
+
+    # Format outputs
+    human_readable_output = "Hosts: " + ", ".join(host_names) + "\n\n"
+    json_output = {
+        "hosts": host_names,
+        "award_data": {}
+    }
+
+    # Loop through awards
+    for award_name in hardcoded_award_names:
+        print(f"Processing Award: {award_name}")
+        
+        # Presenters
+        award_presenters = get_award_presenters(df, award_name, host_names)
+        presenter_names = [presenter['Name'] for presenter in award_presenters]
+
+        # Nominees
+        nominee_names = find_nominees(df, award_name, 6)
+
+        # Winner
+        winner = get_award_winner(df, award_name, nominee_names)
+        
+        # Add to human-readable output
+        human_readable_output += f"Award: {award_name}\n"
+        human_readable_output += "Presenters: " + ", ".join(presenter_names) + "\n"
+        human_readable_output += "Nominees: " + ", ".join(nominee_names) + "\n\n"
+        human_readable_output += f"Winner: {winner}\n\n"
+        
+        # Add to JSON output
+        json_output["award_data"][award_name] = {
+            "Presenters": presenter_names,
+            # Placeholder for nominees and winner, to be filled later
+            "Nominees": nominee_names,
+            "Winner": winner
+        }
+    
+    # Red carpet
+    red_carpet_results = analyze_best_worst_dressed(df)
+
+    # Extract only the names
+    best_dressed_names = [person["Name"] for person in red_carpet_results["Best Dressed"]]
+    worst_dressed_names = [person["Name"] for person in red_carpet_results["Worst Dressed"]]
+    controversial_dressed_names = [person["Name"] for person in red_carpet_results["Most Controversial"]]
+
+    # Add to human-readable output
+    human_readable_output += "Best Dressed: " + ", ".join(best_dressed_names) + "\n"
+    human_readable_output += "Worst Dressed: " + ", ".join(worst_dressed_names) + "\n"
+    human_readable_output += "Most Controversially Dressed: " + ", ".join(controversial_dressed_names) + "\n"
+
+    print(f"Human-readable format:\n{human_readable_output}")
+    print(f"JSON format:\n{json.dumps(json_output, indent=4)}")
+
+# Function to use our generated list of the awards and nominees to view effects of cascading error
+def cascading_output(df):
+    # Hosts
+    print("Finding Hosts...")
+    hosts = find_hosts(df)
+    host_names = [host[0] for host in hosts]
+
+    # Format outputs
+    human_readable_output = "Hosts: " + ", ".join(host_names) + "\n"
+    json_output = {
+        "hosts": host_names,
+        "award_data": {}
+    }
+
+    print(f"Human-readable format:\n{human_readable_output}")
+    print(f"JSON format:\n{json.dumps(json_output, indent=4)}")
 
 def main(year):
     # this is for hard-coded stuff to prevent cascading error
     with open(f"data/gg{year}answers.json", 'r') as f:
         answers_data = json.load(f)
-    hardcoded_hosts_data = answers_data['hosts']
     hardcoded_awards_data = answers_data['award_data']
     hardcoded_award_names = list(hardcoded_awards_data.keys())
-    hardcoded_nominees = [hardcoded_awards_data[award]['nominees'] + [hardcoded_awards_data[award]['winner']] for award in hardcoded_award_names]
+    # hardcoded_award_names = [name for name in hardcoded_award_names if 'best' in name]
+    # hardcoded_nominees = [hardcoded_awards_data[award]['nominees'] + [hardcoded_awards_data[award]['winner']] for award in hardcoded_award_names]
     
-
     df = preprocess_tweets(f"data/gg{year}.json")
 
-    # print("NOMINEES...")
-    # x = df['clean_text'].apply(lambda x: extract_potential_nominees(x, hardcoded_award_names[0]))
-    # print(x)
+    print(f"nominees for {hardcoded_award_names[0]}")
+    nominees = find_nominees(df, hardcoded_award_names[0], 6)
+    print(nominees)
     
-    # print("HOSTS...")
-    # hosts = find_hosts(df)
-    # print(hosts)
+    hardcoded_output(df, hardcoded_award_names)
 
     # print("AWARD NAMES...")
     # awards = find_award_names(df)
