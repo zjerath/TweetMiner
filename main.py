@@ -149,6 +149,48 @@ def get_award_presenters(df, award_name, hosts):
 
     return presenters_entities
 
+
+# Function to process awards given award names and host names
+def process_awards(df, award_names, host_names):
+    human_readable_output = ""
+    json_output = {"award_data": {}}
+    # Loop through awards
+    for award_name in award_names:
+        print(f"Processing Award: {award_name}")
+        # Presenters
+        award_presenters = get_award_presenters(df, award_name, host_names)
+        presenter_names = [presenter['Name'] for presenter in award_presenters]
+        # Nominees
+        nominee_names = find_nominees(df, award_name, 6)
+        # Winner
+        winner = get_award_winner(df, award_name, nominee_names)
+        # Format for output
+        human_readable_output += (
+            f"Award: {award_name}\nPresenters: {', '.join(presenter_names)}\n"
+            f"Nominees: {', '.join(nominee_names)}\nWinner: {winner}\n\n"
+        )
+        json_output["award_data"][award_name] = {
+            "Presenters": presenter_names,
+            "Nominees": nominee_names,
+            "Winner": winner
+        }
+    return human_readable_output, json_output
+
+# Function to deal with extra task
+def process_red_carpet(df):
+    red_carpet_results = analyze_best_worst_dressed(df)
+    # Extract only the names
+    best_dressed_names = [person["Name"] for person in red_carpet_results["Best Dressed"]]
+    worst_dressed_names = [person["Name"] for person in red_carpet_results["Worst Dressed"]]
+    controversial_dressed_names = [person["Name"] for person in red_carpet_results["Most Controversial"]]
+    # Format human-readable output
+    human_readable_output = (
+        f"Best Dressed: {', '.join(best_dressed_names)}\n"
+        f"Worst Dressed: {', '.join(worst_dressed_names)}\n"
+        f"Most Controversially Dressed: {', '.join(controversial_dressed_names)}\n"
+    )
+    return human_readable_output
+
 # Function to use a hardcoded list of the awards and nominees to avoid cascading error
 '''This function DOES NOT output award names found by us. To see the answers with our
 generated award names included, must use the cascading_output function''' 
@@ -160,43 +202,14 @@ def hardcoded_output(df, hardcoded_award_names):
     host_names = [host[0] for host in hosts]
     # Format outputs
     human_readable_output = "Hosts: " + ", ".join(host_names) + "\n\n"
-    json_output = {
-        "hosts": host_names,
-        "award_data": {}
-    }
-    # Loop through awards
-    for award_name in hardcoded_award_names:
-        print(f"Processing Award: {award_name}")
-        # Presenters
-        award_presenters = get_award_presenters(df, award_name, host_names)
-        presenter_names = [presenter['Name'] for presenter in award_presenters]
-        # Nominees
-        nominee_names = find_nominees(df, award_name, 6)
-        # Winner
-        winner = get_award_winner(df, award_name, nominee_names)
-        # Add to human-readable output
-        human_readable_output += f"Award: {award_name}\n"
-        human_readable_output += "Presenters: " + ", ".join(presenter_names) + "\n"
-        human_readable_output += "Nominees: " + ", ".join(nominee_names) + "\n\n"
-        human_readable_output += f"Winner: {winner}\n\n"
-        # Add to JSON output
-        json_output["award_data"][award_name] = {
-            "Presenters": presenter_names,
-            "Nominees": nominee_names,
-            "Winner": winner
-        }
-    # Red carpet
-    print("Processing Extra Task")
-    red_carpet_results = analyze_best_worst_dressed(df)
-    # Extract only the names
-    best_dressed_names = [person["Name"] for person in red_carpet_results["Best Dressed"]]
-    worst_dressed_names = [person["Name"] for person in red_carpet_results["Worst Dressed"]]
-    controversial_dressed_names = [person["Name"] for person in red_carpet_results["Most Controversial"]]
-    # Add to human-readable output
-    human_readable_output += "Best Dressed: " + ", ".join(best_dressed_names) + "\n"
-    human_readable_output += "Worst Dressed: " + ", ".join(worst_dressed_names) + "\n"
-    human_readable_output += "Most Controversially Dressed: " + ", ".join(controversial_dressed_names) + "\n"
-
+    json_output = {"hosts": host_names}
+    # Awards
+    award_text, award_json = process_awards(df, hardcoded_award_names, host_names)
+    # Add to outputs
+    human_readable_output += award_text
+    json_output.update(award_json)
+    # Red Carpet
+    human_readable_output += process_red_carpet(df)
     print(f"Human-readable format:\n{human_readable_output}")
     print(f"JSON format:\n{json.dumps(json_output, indent=4)}")
 
@@ -208,48 +221,18 @@ def cascading_output(df):
     hosts = find_hosts(df)
     host_names = [host[0] for host in hosts]
     # Format outputs
-    human_readable_output = "Hosts: " + ", ".join(host_names) + "\n"
-    json_output = {
-        "hosts": host_names,
-        "award_data": {}
-    }
+    human_readable_output = "Hosts: " + ", ".join(host_names) + "\n\n"
+    json_output = {"hosts": host_names}
     # Awards
     print("Extracting Awards")
     awards = find_award_names(df)
     award_names = list(set([award['Name'] for award in awards]))
-    # Loop through awards
-    for award_name in award_names:
-        print(f"Processing Award: {award_name}")
-        # Presenters
-        award_presenters = get_award_presenters(df, award_name, host_names)
-        presenter_names = [presenter['Name'] for presenter in award_presenters]
-        # Nominees
-        nominee_names = find_nominees(df, award_name, 6)
-        # Winner
-        winner = get_award_winner(df, award_name, nominee_names)
-        # Add to human-readable output
-        human_readable_output += f"Award: {award_name}\n"
-        human_readable_output += "Presenters: " + ", ".join(presenter_names) + "\n"
-        human_readable_output += "Nominees: " + ", ".join(nominee_names) + "\n\n"
-        human_readable_output += f"Winner: {winner}\n\n"
-        # Add to JSON output
-        json_output["award_data"][award_name] = {
-            "Presenters": presenter_names,
-            "Nominees": nominee_names,
-            "Winner": winner
-        }
+    award_text, award_json = process_awards(df, award_names, host_names)
+    # Add to outputs
+    human_readable_output += award_text
+    json_output.update(award_json)
     # Red carpet
-    print("Processing Extra Task")
-    red_carpet_results = analyze_best_worst_dressed(df)
-    # Extract only the names
-    best_dressed_names = [person["Name"] for person in red_carpet_results["Best Dressed"]]
-    worst_dressed_names = [person["Name"] for person in red_carpet_results["Worst Dressed"]]
-    controversial_dressed_names = [person["Name"] for person in red_carpet_results["Most Controversial"]]
-    # Add to human-readable output
-    human_readable_output += "Best Dressed: " + ", ".join(best_dressed_names) + "\n"
-    human_readable_output += "Worst Dressed: " + ", ".join(worst_dressed_names) + "\n"
-    human_readable_output += "Most Controversially Dressed: " + ", ".join(controversial_dressed_names) + "\n"
-
+    human_readable_output += process_red_carpet(df)
     print(f"Human-readable format:\n{human_readable_output}")
     print(f"JSON format:\n{json.dumps(json_output, indent=4)}")
 
@@ -280,7 +263,7 @@ def main(year, use_hardcoded=False):
 if __name__ == "__main__":
     # Set default values for year and use_hardcoded
     year = 2013
-    use_hardcoded = True
+    use_hardcoded = False
 
     # Update year and use_hardcoded based on command-line arguments
     if len(sys.argv) > 1:
