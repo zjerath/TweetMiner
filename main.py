@@ -1,7 +1,7 @@
 import json
 import pandas as pd
 from util_functions.preprocessing_utils import preprocess_tweets
-from util_functions.predictions_utils import extract_all_winners, extract_all_hosts, extract_all_award_names, extract_all_nominees, extract_all_presenters, extract_potential_nominees
+from util_functions.predictions_utils import extract_winners, extract_all_winners, extract_all_hosts, extract_all_award_names, extract_all_nominees, extract_all_presenters, extract_potential_nominees
 from util_functions.aggregation_utils import aggregate_candidates, aggregate_entities, format_human_readable, named_entity_recognition, define_entities, is_person_name
 from util_functions.sentiment_analysis_utils import analyze_best_worst_dressed
 
@@ -95,19 +95,42 @@ def find_award_names(df):
 
     return award_names
 
-def get_award_winner(df, award_name, nominees):
-    potential_award_winners = extract_all_winners(df, award=award_name, nominees=[], presenters=[])
+def get_award_winners(df, awards, nominees):
+    award_winners = []
+    for award, nominee in zip(awards, nominees):
+        print("Processing award", award)
+        potential_award_winners = extract_winners(df, award, nominee)
 
-    candidate_dict = dict(sorted(potential_award_winners.items(), key=lambda item: item[1], reverse=True))
-    
-    nominees = list(candidate_dict.keys())[:6]
-    winner = nominees[0]
-    nominees.remove(winner)
+        print("Potential award winners", potential_award_winners)
 
-    # nominees, winner = aggregate_candidates(potential_winners=potential_award_winners, entity_list=people_entities)
+        candidate_dict = {winner["Name"]: winner["Number of Tweets"] for winner in potential_award_winners["Winners"]}
+        candidate_dict = dict(sorted(candidate_dict.items(), key=lambda item: item[1], reverse=True))
 
-    print(f"Nominees for {award_name}: {nominees}")
-    print(f"Winner of {award_name}: {winner}")
+        potential_winners = list(candidate_dict.keys())[:6]
+
+        # Find winner that exists in both nominee list and potential winners
+        valid_winners = [w for w in potential_winners if w in nominee]
+        
+        if valid_winners:
+            # Get winner with highest count from valid winners
+            winner = max(valid_winners, key=lambda x: candidate_dict[x])
+            # Ensure winner is in nominees list
+            if winner not in nominee:
+                nominee.append(winner)
+        else:
+            # Fallback if no valid winner found
+            winner = potential_winners[0] if potential_winners else "Unknown"
+            
+        award_winners.append({
+            "Award": award,
+            "Nominees": nominee,
+            "Winner": winner
+        })
+
+        print(f"Nominees for {award}: {nominee}")
+        print(f"Winner of {award}: {winner}")
+
+    return award_winners
 
 def get_award_presenters(df, award_name, hosts):
     presenters = extract_all_presenters(df, award_name)
@@ -143,6 +166,7 @@ def main(year):
     hardcoded_hosts_data = answers_data['hosts']
     hardcoded_awards_data = answers_data['award_data']
     hardcoded_award_names = list(hardcoded_awards_data.keys())
+    hardcoded_nominees = [hardcoded_awards_data[award]['nominees'] + [hardcoded_awards_data[award]['winner']] for award in hardcoded_award_names]
     
 
     df = preprocess_tweets(f"data/gg{year}.json")
@@ -151,24 +175,24 @@ def main(year):
     # x = df['clean_text'].apply(lambda x: extract_potential_nominees(x, hardcoded_award_names[0]))
     # print(x)
     
-    print("HOSTS...")
-    hosts = find_hosts(df)
-    print(hosts)
+    # print("HOSTS...")
+    # hosts = find_hosts(df)
+    # print(hosts)
 
-    print("AWARD NAMES...")
-    awards = find_award_names(df)
-    print(awards)
+    # print("AWARD NAMES...")
+    # awards = find_award_names(df)
+    # print(awards)
 
-    '''
-    # using our award & host predictions to retrieve presenters
-    print("PRESENTERS...")
-    presenters = get_presenters(df, awards, hosts)
-    print(presenters)
-    '''
+    # '''
+    # # using our award & host predictions to retrieve presenters
+    # print("PRESENTERS...")
+    # presenters = get_presenters(df, awards, hosts)
+    # print(presenters)
+    # '''
 
-    print("PRESENTERS...")
-    presenters = get_presenters(df, hardcoded_award_names, hardcoded_hosts_data)
-    print(presenters)
+    # print("PRESENTERS...")
+    # presenters = get_presenters(df, hardcoded_award_names, hardcoded_hosts_data)
+    # print(presenters)
 
     '''
     # using our award & host predictions to retrieve nominees
@@ -178,51 +202,26 @@ def main(year):
     '''
 
     print("NOMINEES...")
-    x = df['clean_text'].apply(lambda x: extract_potential_nominees(x, hardcoded_award_names[0]))
-    print(x)
+    # x = df['clean_text'].apply(lambda x: extract_potential_nominees(x, hardcoded_award_names[0]))
+    # print(x)
     nominees = find_nominees(df, hardcoded_award_names, 5)
     print(nominees)
 
-    '''
-    # using our award & nominee predictions to retrieve winners
-    print("WINNERS...")
-    winners = find_nominees(df, awards, 5)
-    print(winners)
-    '''
+    # '''
+    # # using our award & nominee predictions to retrieve winners
+    # print("WINNERS...")
+    # winners = find_nominees(df, awards, 5)
+    # print(winners)
+    # '''
 
     # print("NOMINEES...")
     # nominees = find_nominees(df, hardcoded_award_names, 5)
     # print(nominees)
 
-    # # awards list
-    # awards = ["best screenplay - motion picture", "best director - motion picture", 
-    #       "best performance by an actress in a television series - comedy or musical",
-    #       "best foreign language film",
-    #       "best performance by an actor in a supporting role in a motion picture",
-    #       "best performance by an actress in a supporting role in a series, mini-series or motion picture made for television",
-    #       "best motion picture - comedy or musical",
-    #       "best performance by an actress in a motion picture - comedy or musical",
-    #       "best mini-series or motion picture made for television",
-    #       "best original score - motion picture",
-    #       "best performance by an actress in a television series - drama",
-    #       "best performance by an actress in a motion picture - drama",
-    #       "cecil b. demille award",
-    #       "best performance by an actor in a motion picture - comedy or musical",
-    #       "best motion picture - drama",
-    #       "best performance by an actor in a supporting role in a series, mini-series or motion picture made for television",
-    #       "best performance by an actress in a supporting role in a motion picture",
-    #       "best television series - drama",
-    #       "best performance by an actor in a mini-series or motion picture made for television",
-    #       "best performance by an actress in a mini-series or motion picture made for television",
-    #       "best animated feature film",
-    #       "best original song - motion picture",
-    #       "best performance by an actor in a motion picture - drama",
-    #       "best television series - comedy or musical",
-    #       "best performance by an actor in a television series - drama",
-    #       "best performance by an actor in a television series - comedy or musical"
-    #       ]
-
-    # award_winners_output = extract_all_winners(df, "Best Picture", nominees=[], presenters=[])
+    print(analyze_best_worst_dressed(df))
+    
+    award_winners_output = get_award_winners(df, hardcoded_award_names, hardcoded_nominees)
+    print(award_winners_output)
 
     # award_winners_output['Winners'] = aggregate_entities(award_winners_output['Winners'])
 

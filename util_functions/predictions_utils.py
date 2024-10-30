@@ -1,4 +1,9 @@
 import re
+import spacy
+nlp = spacy.load("en_core_web_lg")
+
+def remove_punctuation(text):
+    return ''.join(char for char in text if char.isalnum() or char.isspace())
 
 # Function to apply regex patterns and extract potential nominees
 def extract_potential_nominees(text, award):
@@ -14,7 +19,7 @@ def extract_potential_nominees(text, award):
 
     nominees = []
     # if remove_punctuation(award[:len(award)]).lower() in remove_punctuation(text).lower():
-    if text.str().lower().contains(award[:len(award)].lower()):
+    if remove_punctuation(award).lower() in remove_punctuation(text).lower():
         for pattern in nominee_patterns:
             # filter tweets that contain the award name without punctuation
             matches = re.findall(pattern, text, re.IGNORECASE)
@@ -25,11 +30,14 @@ def extract_potential_nominees(text, award):
 def extract_all_nominees(df, award):
     '''
     Returns a JSON with information about the award and a list of nominees based on the tweet data.
+    Approach: 
+    1. Extract potential nominees using regex patterns (x nominated for y). These nominees are weighted 3x.
+    2. Apply NER to the tweets containing the award name. These nominees are weighted 1x. 
     
     Example output:
     {
         "Award": "Best Picture",
-        "Nominees": ["Nominee 1", "Nominee 2", "Nominee 3", "Nominee 4", "Nominee 5"], 
+        "Nominees": [{"Name": "Nominee 1", "Number of Tweets": 10}, {"Name": "Nominee 2", "Number of Tweets": 5}, ...]
     }
     '''
     # Apply the extraction function to the 'clean_text' column
@@ -42,9 +50,29 @@ def extract_all_nominees(df, award):
         if nominees:  # Check if the list is not empty
             for nominee in nominees:
                 if nominee in nominee_counts:
-                    nominee_counts[nominee] += 1
+                    nominee_counts[nominee] += 3
                 else:
-                    nominee_counts[nominee] = 1
+                    nominee_counts[nominee] = 3
+
+    # Filter tweets containing award name (without punctuation)
+    clean_award = remove_punctuation(award).lower()
+    filtered_df = df[df['clean_text'].apply(lambda x: clean_award in remove_punctuation(x).lower())]
+
+    # Remove RT @ mentions and award name from tweets. These entities are picked up by NER. 
+    filtered_df = filtered_df.copy()  
+    filtered_df.loc[:, 'clean_text'] = filtered_df['clean_text'].str.replace('RT @\w+', '', regex=True)
+    filtered_df.loc[:, 'clean_text'] = filtered_df['clean_text'].str.replace(clean_award, '', regex=False)
+    filtered_df.loc[:, 'clean_text'] = filtered_df['clean_text'].str.replace(award, '', regex=False, case=False)
+    
+    # Apply NER to filtered tweets
+    for _, row in filtered_df.iterrows():
+        doc = nlp(row['clean_text'])
+        for ent in doc.ents:
+            if ent.label_ in ['PERSON', 'WORK_OF_ART']:
+                name = ent.text
+                if name not in nominee_counts:
+                    nominee_counts[name] = 0
+                nominee_counts[name] += 1
 
     # Create the JSON structure
     output = {
@@ -70,18 +98,26 @@ def extract_potential_winners(text, award):
         r'(\w+(?:\s+\w+)?)\s+' + just_variations + r'wins\s+(?!' + award + ')',
         r'(\w+(?:\s+\w+)?)\s+' + just_variations + r'won\s+(?!' + award + ')',
         r'(\w+(?:\s+\w+)?)\s+' + just_variations + r'awarded\s+(?!' + award + ')',
-        r'(\w+(?:\s+\w+)?)\s+' + just_variations + r'receives\s+(?!' + award + ')',
-        r'(\w+(?:\s+\w+)?)\s+' + just_variations + r'received\s+(?!' + award + ')'
+        r'(\w+(?:\s+\w+)?)\s+' + just_variations + r'awarded\s+to\s+(?!' + award + ')',
+        r'(\w+(?:\s+\w+)?)\s+' + just_variations + r'goes\s+(?!' + award + ')',
+        r'(\w+(?:\s+\w+)?)\s+' + just_variations + r'received\s+(?!' + award + ')',
         # Regex pattern to capture "award - winner -" format
         r'(\w+(?:\s+\w+)?)\s+-\s+' + re.escape(award) + r'\s+-',
     ]
     winners = []
     for pattern in winner_patterns:
+        # Remove stop words from pattern
+        stop_words = {'a', 'an', 'and', 'are', 'as', 'at', 'be', 'by', 'for', 'from', 'has', 'he', 'in', 'is', 'it',
+                     'its', 'of', 'on', 'that', 'the', 'to', 'was', 'were', 'will', 'with', 'the', 'this', 'but', 'they',
+                     'have', 'had', 'what', 'when', 'where', 'who', 'which', 'why', 'how'}
+        
+        pattern_words = pattern.split()
+        pattern = ' '.join([word for word in pattern_words if word.lower() not in stop_words])
         matches = re.findall(pattern, text, re.IGNORECASE)
         winners.extend(matches)
     return winners
 
-def extract_all_winners(df, award, nominees):
+def extract_winners(df, award, nominees):
     '''
     Returns a JSON with the information about the award, and a list of winners and the number of tweets they were mentioned in as a winner. 
 
@@ -134,6 +170,12 @@ def extract_all_winners(df, award, nominees):
 
     return output
 
+def extract_all_winners(df, awards, nominees):
+    all_winners = []
+    for award, nominee in zip(awards, nominees):
+        all_winners.append(extract_winners(df, award, nominee))
+    return all_winners
+
 def extract_all_hosts(df):
     tweets = df[df['cleaned_text'].str.lower().str.contains('host')]['cleaned_text']
 
@@ -141,9 +183,6 @@ def extract_all_hosts(df):
 
 def extract_all_presenters(df, award):
     tweets = df[df['cleaned_text'].str.lower().str.contains('present')]['cleaned_text']
-
-    def remove_punctuation(text):
-        return ''.join(char for char in text if char.isalnum() or char.isspace())
 
     # filter tweets that contain the award name without punctuation
     tweets = tweets[tweets.apply(lambda x: remove_punctuation(award[:len(award)]).lower() in remove_punctuation(x).lower())]

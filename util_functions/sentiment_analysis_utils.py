@@ -8,6 +8,7 @@ nltk.download('vader_lexicon')
 
 # Initialize VADER SentimentIntensityAnalyzer
 sid = SentimentIntensityAnalyzer()
+nlp = spacy.load("en_core_web_lg")
 
 # Function to extract names and calculate sentiment for "dressed" or "outfit" mentions
 def analyze_best_worst_dressed(df):
@@ -21,7 +22,7 @@ def analyze_best_worst_dressed(df):
         "Most Controversial": [{"Name": "Person 3", "Sentiment Range": 1.5, "Number of Tweets": 8}, ...]
     }
     '''
-    nlp = spacy.load("en_core_web_lg")
+    
     # Filter tweets with keywords
     df_filtered = df[df['clean_text'].str.contains('dressed|outfit', case=False, regex=True)]
     
@@ -35,13 +36,11 @@ def analyze_best_worst_dressed(df):
     
     # Process each tweet
     for index, row in df_filtered.iterrows():
-        print(f"Processing tweet {index}", row['clean_text'])
         text = row['clean_text']
         sentiment = sid.polarity_scores(text)['compound']
         
         # Use spaCy to extract person names
         doc = nlp(text)
-        print(sentiment, doc.ents)
         for ent in doc.ents:
             if ent.label_ == 'PERSON':
                 # Only store names that appear in context of dress/outfit
@@ -57,15 +56,8 @@ def analyze_best_worst_dressed(df):
                     results[name].append(sentiment)
 
     best_dressed, worst_dressed, controversial_dressed = [], [], []
-    print("Results dictionary:")
-    print(f"Number of entries: {len(results)}")
-    if len(results) == 0:
-        print("Results dictionary is empty")
-    else:
-        print("Results dictionary contains data")
-    print(results.items())
+
     for name, sentiments in results.items():
-        print(f"Name: {name}, Sentiments: {sentiments}")
         # apply spacy to make sure name is a person
         doc = nlp(name)
         if len(doc.ents) == 0 or doc.ents[0].label_ != 'PERSON':
