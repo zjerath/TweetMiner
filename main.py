@@ -3,6 +3,7 @@ import pandas as pd
 from util_functions.preprocessing_utils import preprocess_tweets
 from util_functions.predictions_utils import extract_all_winners, extract_all_hosts, extract_all_award_names, extract_all_nominees, extract_all_presenters, extract_potential_nominees
 from util_functions.aggregation_utils import aggregate_candidates, aggregate_entities, format_human_readable, named_entity_recognition, define_entities, is_person_name
+from util_functions.sentiment_analysis_utils import analyze_best_worst_dressed
 
 def import_data():
     with open("data/gg2013answers.json", 'r') as f:
