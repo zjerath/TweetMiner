@@ -3,21 +3,26 @@ import re
 # Function to apply regex patterns and extract potential nominees
 def extract_potential_nominees(text, award):
     nominee_patterns = [
-        r'(\w+(?:\s+\w+)?)\s+is\s+nominated\s+for\s+' + award,
-        r'(\w+(?:\s+\w+)?)\s+was\s+nominated\s+for\s+' + award,
-        r'(\w+(?:\s+\w+)?)\s+has\s+been\s+nominated\s+for\s+' + award,
-        r'nominee\s+(\w+(?:\s+\w+)?)\s+for\s+' + award,
-        r'nominated\s+for\s+' + award + r'\s+(\w+(?:\s+\w+)?)'
+        r'(\w+(?:\s+\w+)?)\s+is\s+nominated\s+for\s+',
+        r'(\w+(?:\s+\w+)?)\s+was\s+nominated\s+for\s+',
+        r'(\w+(?:\s+\w+)?)\s+has\s+been\s+nominated\s+for\s+',
+        r'nominee\s+(\w+(?:\s+\w+)?)\s+for\s+'
     ]
     
+    def remove_punctuation(text):
+            return ''.join(char for char in text if char.isalnum() or char.isspace())
+
     nominees = []
-    for pattern in nominee_patterns:
-        matches = re.findall(pattern, text, re.IGNORECASE)
-        nominees.extend(matches)
+    # if remove_punctuation(award[:len(award)]).lower() in remove_punctuation(text).lower():
+    if text.str().lower().contains(award[:len(award)].lower()):
+        for pattern in nominee_patterns:
+            # filter tweets that contain the award name without punctuation
+            matches = re.findall(pattern, text, re.IGNORECASE)
+            nominees.extend(matches)
     return nominees
 
 
-def extract_all_nominees(df, award, presenters=[]):
+def extract_all_nominees(df, award):
     '''
     Returns a JSON with information about the award and a list of nominees based on the tweet data.
     
@@ -25,7 +30,6 @@ def extract_all_nominees(df, award, presenters=[]):
     {
         "Award": "Best Picture",
         "Nominees": ["Nominee 1", "Nominee 2", "Nominee 3", "Nominee 4", "Nominee 5"], 
-        "Presenters": ["Presenter 1", "Presenter 2", "Presenter 3"],
     }
     '''
     # Apply the extraction function to the 'clean_text' column
@@ -50,8 +54,7 @@ def extract_all_nominees(df, award, presenters=[]):
                 "Name": nominee,
                 "Number of Tweets": count
             } for nominee, count in nominee_counts.items()
-        ],
-        "Presenters": presenters
+        ]
     }
 
     # Sort the nominees by number of tweets in descending order
@@ -78,7 +81,7 @@ def extract_potential_winners(text, award):
         winners.extend(matches)
     return winners
 
-def extract_all_winners(df, award, nominees=[], presenters=[]):
+def extract_all_winners(df, award, nominees):
     '''
     Returns a JSON with the information about the award, and a list of winners and the number of tweets they were mentioned in as a winner. 
 
@@ -109,16 +112,15 @@ def extract_all_winners(df, award, nominees=[], presenters=[]):
     for winners in all_winners:
         if winners:  # Check if the list is not empty
             for winner in winners:
-                if winner in winner_counts:
-                    winner_counts[winner] += 1
-                else:
-                    winner_counts[winner] = 1
+                if winner in nominees:
+                    if winner in winner_counts:
+                        winner_counts[winner] += 1
+                    else:
+                        winner_counts[winner] = 1
 
     # Create the JSON structure
     output = {
         "Award": award,
-        "Nominees": nominees,  # We don't have nominee information in the current data
-        "Presenters": presenters,  # We don't have presenter information in the current data
         "Winners": [
             {
                 "Name": winner,
@@ -144,7 +146,7 @@ def extract_all_presenters(df, award):
         return ''.join(char for char in text if char.isalnum() or char.isspace())
 
     # filter tweets that contain the award name without punctuation
-    tweets = tweets[tweets.apply(lambda x: remove_punctuation(award).lower() in remove_punctuation(x).lower())]
+    tweets = tweets[tweets.apply(lambda x: remove_punctuation(award[:len(award)]).lower() in remove_punctuation(x).lower())]
 
     return tweets.tolist()
 

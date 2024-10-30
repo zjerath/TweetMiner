@@ -159,7 +159,7 @@ def aggregate_candidates(potential_winners, entity_list, top_n=5):
     return nominees, winner
 
 
-def aggregate_entities(candidates, entity_list):
+def aggregate_entities(candidates):
     '''
     Aggregates entities from the winners of a given award if some entities are named differently.
     For example, "Anne Hathaway" and "Anne Hathaway (actress)" would be considered the same entity.
@@ -193,15 +193,17 @@ def aggregate_entities(candidates, entity_list):
         candidate_name = candidate_info["Name"]
         candidate_count = candidate_info["Number of Tweets"]
         
-        # identify entities "closest" to winner_name
-        best_matches = compute_edit_distance(candidate_name, entity_list=entity_list) 
-        best_match = best_matches[0][1]
+        entity_count[candidate_name] = candidate_count
+        
+        # # identify entities "closest" to winner_name
+        # best_matches = compute_edit_distance(candidate_name, entity_list=entity_list) 
+        # best_match = best_matches[0][1]
             
-        # map name to entity, update entity count
-        if best_match in entity_count:
-            entity_count[best_match] += candidate_count
-        else:
-            entity_count[best_match] = candidate_count  
+        # # map name to entity, update entity count
+        # if best_match in entity_count:
+        #     entity_count[best_match] += candidate_count
+        # else:
+        #     entity_count[best_match] = candidate_count  
 
     # winner = entity w/ highest count
     return dict(sorted(entity_count.items(), key=lambda item: item[1], reverse=True))
