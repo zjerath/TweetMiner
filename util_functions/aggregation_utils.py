@@ -8,10 +8,12 @@ from util_functions.movie_data_utils import create_cast_crew_df
 
 
 
-'''
-Extract relevant PERSON & MOVIE entities from movies/credits data
-'''
 def define_entities(year):
+    '''
+    Extract relevant PERSON & MOVIE entities from externally downloaded movies/credits data.
+    This function is no longer used as we removed cross-checking entities against this external data to speed up runtime.
+    '''
+
     crew_df, cast_df = create_cast_crew_df(year)
     
     # combine distinct names into list - one for movies, one for people
@@ -68,8 +70,8 @@ def named_entity_recognition(input):
 
 def compute_edit_distance(string, entity_list):
     '''
-    For a given string, compute edit distances against all possible entities
-    Returns most similar matches from defined entity list
+    For a given string, compute edit distances against all entities in entity_list.
+    Returns similarity scores against entities in sorted order, from most to least similar.
     '''
     entity_similarity_dict = {} # entity : similarity_score
 
@@ -123,14 +125,19 @@ def token_overlap(query_string, classes):
 
     return best_classes
 
-"""
-Given potential winners for an award, extract the top N candidates and winner
-"""
+
 def aggregate_candidates(potential_winners, entity_list, top_n=5):
+    '''
+    Given potential winners for an award, extract the top N candidates and winner by majority vote (number of tweets).
+    If multiple names in "potential_winners" refer to the same entity, this function attempts to map them to the 'correct' entity via Levenshtein distance,
+    where the 'correct' entity is an entity in the entity_list, and then combine their popularity count towards that entity. 
+    This function is no longer used as we removed cross-checking entities against external data to speed up runtime.
+    '''
+    
     # data structure -> entity : count
     entity_count = {} 
 
-    # LIMITING SEARCH TO TOP 50 CANDIDATES
+    # LIMITING SEARCH TO TOP 20 CANDIDATES
     winners = sorted(potential_winners["Winners"][:20], key=lambda x: x["Number of Tweets"], reverse=True)
 
     # traverse names in winners
@@ -161,8 +168,8 @@ def aggregate_candidates(potential_winners, entity_list, top_n=5):
 
 def aggregate_entities(candidates):
     '''
-    Aggregates entities from the winners of a given award if some entities are named differently.
-    For example, "Anne Hathaway" and "Anne Hathaway (actress)" would be considered the same entity.
+    Converts a list of candidate dictionaries to a single dictionary.
+    The return dictionary contains entity : popularity data for each candidate, and is sorted by popularity count in descending order.
 
     Example Input: 
     [
@@ -194,23 +201,13 @@ def aggregate_entities(candidates):
         candidate_count = candidate_info["Number of Tweets"]
         
         entity_count[candidate_name] = candidate_count
-        
-        # # identify entities "closest" to winner_name
-        # best_matches = compute_edit_distance(candidate_name, entity_list=entity_list) 
-        # best_match = best_matches[0][1]
-            
-        # # map name to entity, update entity count
-        # if best_match in entity_count:
-        #     entity_count[best_match] += candidate_count
-        # else:
-        #     entity_count[best_match] = candidate_count  
 
     # winner = entity w/ highest count
     return dict(sorted(entity_count.items(), key=lambda item: item[1], reverse=True))
 
 def is_person_name(text):
     '''
-    Returns True if the input string is a person name, False otherwise.
+    Returns True if the input string is a person name (as determined by Spacy's named entity recognition functionality), False otherwise.
     '''
 
     if 'RT @' in text:
