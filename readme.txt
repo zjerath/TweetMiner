@@ -19,6 +19,7 @@ will be printed to the console. The human-readable output also contains info on 
 we analyzed sentiments regarding the red carpet (best dressed, worst dressed, most controversially dressed).
 
 File Structure:
+The output directory contains json and human-readable outputs for both hardcoded and our found award names. 
 Our main.py file contains the script used to run our program. It references multiple files in the util_functions
 directory, which we use for preprocessing, prediction, aggregation, cross-checking against an external 
 dataset (which we had to remove in order to save time, described below), and our additional task. The data 

@@ -1,0 +1,565 @@
+{
+    "hosts": [
+        "Tina Fey",
+        "Amy Poehler"
+    ],
+    "award_data": {
+        "Best Actress in a Miniseries or TV Movie": {
+            "Presenters": [],
+            "Nominees": [
+                "Julianne Moore",
+                "Julianne Moore - Game",
+                "Sarah Palin",
+                "Bien",
+                "JULIANNE MOORE WINS",
+                "Julianne"
+            ],
+            "Winner": "Julianne Moore"
+        },
+        "Best Actress": {
+            "Presenters": [
+                "Lea Michele",
+                "Claire Danes",
+                "Kristen Wiig"
+            ],
+            "Nominees": [
+                "Jennifer Lawrence",
+                "Jessica Chastain",
+                "Claire Danes",
+                "Lena Dunham",
+                "Julianne Moore",
+                "Lena"
+            ],
+            "Winner": "Jennifer Lawrence"
+        },
+        "Best supporting actress TV series, miniseries, or TV movie": {
+            "Presenters": [
+                "Maggie Smith"
+            ],
+            "Nominees": [
+                "Maggie Smith"
+            ],
+            "Winner": "Maggie Smith"
+        },
+        "Best comedy series": {
+            "Presenters": [],
+            "Nominees": [
+                "Best Drama",
+                "List With  "
+            ],
+            "Winner": "Best Drama"
+        },
+        "Best Actress, Musical or Comedy": {
+            "Presenters": [],
+            "Nominees": [
+                "Jennifer Lawrence",
+                "Leana Dunham - Girls - #GoldenGlobes #",
+                "Lena Dunham",
+                "Uyeaaahhhh"
+            ],
+            "Winner": "Jennifer Lawrence"
+        },
+        "Best Supporting Actor in a Drama": {
+            "Presenters": [
+                "Bradley Cooper",
+                "Jennifer Lawrence"
+            ],
+            "Nominees": [
+                "Christoph Waltz",
+                "Django Unchained",
+                "Bradley Cooper",
+                "Jennifer Lawrence",
+                "Christof Waltz"
+            ],
+            "Winner": "Jennifer Lawrence"
+        },
+        "Best Movie Comedy or Musical": {
+            "Presenters": [],
+            "Nominees": [],
+            "Winner": "Unknown"
+        },
+        "Best supporting actor, motion picture": {
+            "Presenters": [],
+            "Nominees": [
+                "Christoph Waltz",
+                "CHRISTOPH WALTZ",
+                "Django Unchained"
+            ],
+            "Winner": "Christoph Waltz"
+        },
+        "Best Actor, Movie Comedy": {
+            "Presenters": [],
+            "Nominees": [
+                "Hugh Jackman",
+                "Hugh",
+                "hari",
+                "Kok gk di sebutin",
+                "Les Miz'",
+                "Hugh Jackson"
+            ],
+            "Winner": "Hugh Jackman"
+        },
+        "Best Motion Picture, Comedy or Musical": {
+            "Presenters": [
+                "Dustin Hoffman"
+            ],
+            "Nominees": [
+                "Les Miserables",
+                "Best Motion Picture (Comedy or Musical",
+                "Best Motion Picture Comedy or Musical #GoldenGlobes",
+                "@BreakingNews",
+                "the Best Motion Picture Comedy or Musical #GoldenGlobes",
+                "Comedy or Musical:"
+            ],
+            "Winner": "Les Miserables"
+        },
+        "Best Motion Picture, Drama": {
+            "Presenters": [
+                "Julia Roberts",
+                "Roberts"
+            ],
+            "Nominees": [
+                "Best Motion Picture Drama",
+                "Best Motion Picture (Drama",
+                "Motion Picture Drama",
+                "Shocker"
+            ],
+            "Winner": "Unknown"
+        },
+        "Best Picture": {
+            "Presenters": [
+                "Julia Roberts",
+                "Clinton",
+                "Liev Schreiber"
+            ],
+            "Nominees": [
+                "Les Miserables",
+                "Oscar",
+                "Golden Globe",
+                "Hope Springs",
+                "Tarantino film",
+                "If Amour"
+            ],
+            "Winner": "Les Miserables"
+        },
+        "Best Animated Feature Film": {
+            "Presenters": [
+                "Sacha Baron Cohen"
+            ],
+            "Nominees": [
+                "Winner",
+                "GoldenGlobes"
+            ],
+            "Winner": "GoldenGlobes"
+        },
+        "Best Actress in a Motion Picture, Drama": {
+            "Presenters": [
+                "George Clooney",
+                "Jessica Chastain"
+            ],
+            "Nominees": [
+                "Jessica Chastain",
+                "Jessica Chastain - Zero",
+                "jess",
+                "La Ame",
+                "George Clooney",
+                "Jessica chastain"
+            ],
+            "Winner": "Jessica Chastain"
+        },
+        "Best TV Series, Drama": {
+            "Presenters": [],
+            "Nominees": [
+                "Best TV Series Drama",
+                "Drama"
+            ],
+            "Winner": "Drama"
+        },
+        "Best Actor in a Motion Picture, Musical or Comedy": {
+            "Presenters": [],
+            "Nominees": [
+                "Hugh Jackman",
+                "Les Miserables",
+                "Les Miz",
+                "HUGH JACKMAN",
+                "GoldenGlobes"
+            ],
+            "Winner": "Hugh Jackman"
+        },
+        "Best Motion Picture": {
+            "Presenters": [
+                "Julia Roberts",
+                "Clinton",
+                "Dustin Hoffman"
+            ],
+            "Nominees": [
+                "Comedy or Musical",
+                "Les Miserables",
+                "Drama",
+                "@BreakingNews",
+                "Los Miserables",
+                "Comedy or Musical for Les Miserables"
+            ],
+            "Winner": "Les Miserables"
+        },
+        "Best Motion Picture Drama": {
+            "Presenters": [
+                "Julia Roberts",
+                "Roberts"
+            ],
+            "Nominees": [
+                "Best Motion Picture, Drama",
+                "Best Motion Picture (Drama",
+                "Best Motion PIcture, Drama",
+                "Shocker"
+            ],
+            "Winner": "Unknown"
+        },
+        "Best Actor in a Motion Picture, Drama": {
+            "Presenters": [],
+            "Nominees": [
+                "Daniel Day-Lewis",
+                "Daniel Day Lewis",
+                "Lewis Lincoln"
+            ],
+            "Winner": "Unknown"
+        },
+        "Best Actress in a Motion Picture, Musical or Comedy": {
+            "Presenters": [],
+            "Nominees": [
+                "Jennifer Lawrence",
+                "Jennifer :D",
+                "Katniss Everdeen!"
+            ],
+            "Winner": "Jennifer Lawrence"
+        },
+        "Best Screenplay, motion picture": {
+            "Presenters": [
+                "Robert Pattinson",
+                "Amanda Seyfried"
+            ],
+            "Nominees": [
+                "Best Screenplay Motion Picture",
+                "Django Unchained"
+            ],
+            "Winner": "Django Unchained"
+        },
+        "Best Foreign Language Film": {
+            "Presenters": [
+                "Sylvester Stallone",
+                "Stallone",
+                "Schwarzenegger"
+            ],
+            "Nominees": [
+                "Amour",
+                "the Golden Globe",
+                "Terminator"
+            ],
+            "Winner": "Amour"
+        },
+        "Best Supporting Actress, TV": {
+            "Presenters": [
+                "Maggie Smith"
+            ],
+            "Nominees": [
+                "Maggie Smith",
+                "Downton Abbey",
+                "Archie Panjabi",
+                "Hayden Panettiere",
+                "Su Qing"
+            ],
+            "Winner": "Maggie Smith"
+        },
+        "Best Actor in a Miniseries or TV Movie": {
+            "Presenters": [],
+            "Nominees": [
+                "Kevin Costner",
+                "Kevin Costner Wins",
+                "Ed Harris"
+            ],
+            "Winner": "Kevin Costner"
+        },
+        "Best Actor, TV Series Comedy": {
+            "Presenters": [],
+            "Nominees": [
+                "Don Cheadle",
+                "Don Cheadle LOUIE"
+            ],
+            "Winner": "Don Cheadle"
+        },
+        "Best Foreign Film": {
+            "Presenters": [
+                "Stallone",
+                "Arnold",
+                "Schwarzenegger"
+            ],
+            "Nominees": [
+                "Amour",
+                "AMOUR",
+                "Best Animated Feature:",
+                "Best Animated"
+            ],
+            "Winner": "Amour"
+        },
+        "Best Actor": {
+            "Presenters": [],
+            "Nominees": [
+                "Hugh Jackman",
+                "Daniel Day-Lewis",
+                "Les Miserables - #",
+                "Damian Lewis",
+                "Les Miserables",
+                "Kevin Costner"
+            ],
+            "Winner": "Les Miserables"
+        },
+        "Best Supporting Actor": {
+            "Presenters": [
+                "Bradley Cooper",
+                "Kate Hudson",
+                "Jennifer Lawrence"
+            ],
+            "Nominees": [
+                "Christoph Waltz",
+                "Christoph Waltz - Django Unchained",
+                "Django Unchained",
+                "Ed Harris",
+                "Christoph Watlz",
+                "Django"
+            ],
+            "Winner": "Christoph Waltz"
+        },
+        "Best Supporting Actress in a Motion Picture": {
+            "Presenters": [],
+            "Nominees": [
+                "Anne Hathaway",
+                "Les Miz",
+                "Les Miserables",
+                "Anne Hathaway - Les Miserables",
+                "Anne Hathaway - Les Miserables - #",
+                "Anne Hathaway -Les"
+            ],
+            "Winner": "Anne Hathaway"
+        },
+        "Best Motion Picture - Drama": {
+            "Presenters": [],
+            "Nominees": [
+                "Les Miserables"
+            ],
+            "Winner": "Les Miserables"
+        },
+        "Best Screenplay": {
+            "Presenters": [
+                "Robert Pattinson",
+                "Amanda Seyfried",
+                "Rob"
+            ],
+            "Nominees": [
+                "Django Unchained",
+                "Django Unchained'",
+                "a Golden Globe",
+                "Django\" Quentin Tarantino",
+                "Most Words",
+                "Django"
+            ],
+            "Winner": "Django"
+        },
+        "Best actress in a TV Comedy or Musical": {
+            "Presenters": [],
+            "Nominees": [
+                "Lena Dunham",
+                "Amy Poehler"
+            ],
+            "Winner": "Lena Dunham"
+        },
+        "Best TV Series, Comedy": {
+            "Presenters": [
+                "Jay Leno",
+                "Jimmy Fallon"
+            ],
+            "Nominees": [
+                "Modern Family's",
+                "HBO // LIVE",
+                "Modern Family",
+                "Best TV Series Comedy or Musical #GoldenGlobes"
+            ],
+            "Winner": "Modern Family"
+        },
+        "Best Movie Actor, Drama": {
+            "Presenters": [],
+            "Nominees": [
+                "Daniel Day-Lewis",
+                "ni yg harusnya",
+                "wilujeng",
+                "kang daniel!",
+                "Les Miserables"
+            ],
+            "Winner": "Les Miserables"
+        },
+        "Best Original Score": {
+            "Presenters": [
+                "Mychael Danna",
+                "Jason Statham",
+                "J.Lo"
+            ],
+            "Nominees": [
+                "'Life of Pi' #",
+                "the \"Life of Pi",
+                "\"Life of Pi",
+                "'Life of Pi'",
+                "(Life of Pi",
+                "\"Life of Pi\" // LIVE BLOG: http://t.co/TshIFrYj"
+            ],
+            "Winner": "Unknown"
+        },
+        "Best Supporting Actress in a TV Series": {
+            "Presenters": [],
+            "Nominees": [
+                "Dame Maggie Smith",
+                "Downton Abbey",
+                "Maggie Smith"
+            ],
+            "Winner": "Maggie Smith"
+        },
+        "Best Motion Picture, Musical or Comedy": {
+            "Presenters": [],
+            "Nominees": [
+                "Les Miserables"
+            ],
+            "Winner": "Les Miserables"
+        },
+        "Best Picture nominee Lincoln": {
+            "Presenters": [],
+            "Nominees": [],
+            "Winner": "Unknown"
+        },
+        "Best Actor, TV Series Drama": {
+            "Presenters": [],
+            "Nominees": [
+                "Damien Lewis",
+                "Damian Lewis",
+                "Jeff Daniels"
+            ],
+            "Winner": "Damian Lewis"
+        },
+        "Best Director": {
+            "Presenters": [
+                "Ben Affleck",
+                "Halle Berry",
+                "Jennifer Garner"
+            ],
+            "Nominees": [
+                "Ben Affleck",
+                "Ben",
+                "Oscar",
+                "Affleck",
+                "Oscar Snub",
+                "Wins Golden"
+            ],
+            "Winner": "Ben Affleck"
+        },
+        "Best Actor in a TV Series, Drama": {
+            "Presenters": [],
+            "Nominees": [
+                "Damian Lewis",
+                "Damian Lewis - Homeland",
+                "Sgt",
+                "Brody",
+                "Asik"
+            ],
+            "Winner": "Damian Lewis"
+        },
+        "Best Supporting Actress in a TV Movie, Series, or Miniseries - Maggie Smith": {
+            "Presenters": [],
+            "Nominees": [],
+            "Winner": "Unknown"
+        },
+        "Best Animated Film": {
+            "Presenters": [
+                "Bill"
+            ],
+            "Nominees": [
+                "Hotel Transylvania",
+                "Outstanding Animation in an Animated Feature Film",
+                "the Golden Globe",
+                "Outstanding Animation"
+            ],
+            "Winner": "Unknown"
+        },
+        "Best Original Song": {
+            "Presenters": [
+                "J. Lo"
+            ],
+            "Nominees": [
+                "Skyfall",
+                "Adele",
+                "MumfordAndSons",
+                "SKYFALL",
+                "Dream On",
+                "\"Life of Pi"
+            ],
+            "Winner": "Adele"
+        },
+        "Best Drama": {
+            "Presenters": [
+                "Paul Rudd"
+            ],
+            "Nominees": [
+                "The Newsroom",
+                "Black List",
+                "Best Actor",
+                "Breaking Bad",
+                "Best Actress",
+                "Breaking Bad Deserve"
+            ],
+            "Winner": "Best Actress"
+        },
+        "Best Actress in a TV Comedy": {
+            "Presenters": [],
+            "Nominees": [
+                "Lena Dunham",
+                "Lena",
+                "Amy Poehler",
+                "Tina Fey",
+                "Amy Poelher",
+                "Jason Bateman"
+            ],
+            "Winner": "Lena Dunham"
+        },
+        "Best Supporting Actress": {
+            "Presenters": [
+                "Maggie Smith",
+                "Dennis Quaid",
+                "Oscars"
+            ],
+            "Nominees": [
+                "Anne Hathaway",
+                "Miniseries - Maggie Smith - Downtown Abbey",
+                "Maggie Smith",
+                "Downton Abbey",
+                "Dame Maggie Smith",
+                "Adele"
+            ],
+            "Winner": "Adele"
+        },
+        "Best Original Song, Motion Picture": {
+            "Presenters": [],
+            "Nominees": [
+                "the Best Original Song Motion Picture award",
+                "Best Original Song Motion Picture",
+                "Skyfall",
+                "Best Original Song Motion Pictures - Amazing"
+            ],
+            "Winner": "Skyfall"
+        },
+        "Best Actress in a TV Series, Drama": {
+            "Presenters": [],
+            "Nominees": [
+                "Claire Danes",
+                "Claire Danes - Homeland",
+                "Claire Danes'"
+            ],
+            "Winner": "Claire Danes"
+        }
+    }
+}

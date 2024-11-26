@@ -1,0 +1,205 @@
+{
+    "hosts": [
+        "Tina Fey",
+        "Amy Poehler"
+    ],
+    "award_data": {
+        "best screenplay - motion picture": {
+            "Presenters": [
+                "Robert Pattinson",
+                "Amanda Seyfried"
+            ],
+            "Nominees": [
+                "Django Unchained"
+            ],
+            "Winner": "Django Unchained"
+        },
+        "best director - motion picture": {
+            "Presenters": [],
+            "Nominees": [
+                "Ben Affleck",
+                "Quentin Tarantino",
+                "Jian",
+                "\\(^o^)/"
+            ],
+            "Winner": "Ben Affleck"
+        },
+        "best performance by an actress in a television series - comedy or musical": {
+            "Presenters": [],
+            "Nominees": [],
+            "Winner": "Unknown"
+        },
+        "best foreign language film": {
+            "Presenters": [
+                "Sylvester Stallone",
+                "Stallone",
+                "Schwarzenegger"
+            ],
+            "Nominees": [
+                "Amour",
+                "the Golden Globe",
+                "Terminator"
+            ],
+            "Winner": "Amour"
+        },
+        "best performance by an actor in a supporting role in a motion picture": {
+            "Presenters": [],
+            "Nominees": [
+                "Christoph Waltz",
+                "Django Unchained",
+                "Cristoph Waltz"
+            ],
+            "Winner": "Christoph Waltz"
+        },
+        "best performance by an actress in a supporting role in a series, mini-series or motion picture made for television": {
+            "Presenters": [],
+            "Nominees": [
+                "Maggie Smith -"
+            ],
+            "Winner": "Unknown"
+        },
+        "best motion picture - comedy or musical": {
+            "Presenters": [],
+            "Nominees": [
+                "Les Miserables"
+            ],
+            "Winner": "Les Miserables"
+        },
+        "best performance by an actress in a motion picture - comedy or musical": {
+            "Presenters": [],
+            "Nominees": [
+                "Jennifer Lawrence"
+            ],
+            "Winner": "Jennifer Lawrence"
+        },
+        "best mini-series or motion picture made for television": {
+            "Presenters": [],
+            "Nominees": [
+                "Game Change"
+            ],
+            "Winner": "Game Change"
+        },
+        "best original score - motion picture": {
+            "Presenters": [],
+            "Nominees": [
+                "the \"Life of Pi",
+                "\"Life Of Pi",
+                "THE Look for the night",
+                ", Life of Pi #GoldenGlobes",
+                "\"Life of Pi",
+                "'Life of Pi'"
+            ],
+            "Winner": "Unknown"
+        },
+        "best performance by an actress in a television series - drama": {
+            "Presenters": [],
+            "Nominees": [
+                "Claire Danes -",
+                "Claire Danes"
+            ],
+            "Winner": "Claire Danes"
+        },
+        "best performance by an actress in a motion picture - drama": {
+            "Presenters": [],
+            "Nominees": [
+                "Jessica Chastain"
+            ],
+            "Winner": "Jessica Chastain"
+        },
+        "cecil b. demille award": {
+            "Presenters": [
+                "Jodie Foster",
+                "Robert Downey Jr.",
+                "RDJ"
+            ],
+            "Nominees": [
+                "Lifetime Achievement #GoldenGlobes",
+                "Lifetime Achievement"
+            ],
+            "Winner": "Unknown"
+        },
+        "best performance by an actor in a motion picture - comedy or musical": {
+            "Presenters": [],
+            "Nominees": [],
+            "Winner": "Unknown"
+        },
+        "best motion picture - drama": {
+            "Presenters": [],
+            "Nominees": [
+                "Les Miserables"
+            ],
+            "Winner": "Les Miserables"
+        },
+        "best performance by an actor in a supporting role in a series, mini-series or motion picture made for television": {
+            "Presenters": [],
+            "Nominees": [],
+            "Winner": "Unknown"
+        },
+        "best performance by an actress in a supporting role in a motion picture": {
+            "Presenters": [],
+            "Nominees": [
+                "Anne Hathaway"
+            ],
+            "Winner": "Anne Hathaway"
+        },
+        "best television series - drama": {
+            "Presenters": [],
+            "Nominees": [
+                "Homeland"
+            ],
+            "Winner": "Homeland"
+        },
+        "best performance by an actor in a mini-series or motion picture made for television": {
+            "Presenters": [],
+            "Nominees": [],
+            "Winner": "Unknown"
+        },
+        "best performance by an actress in a mini-series or motion picture made for television": {
+            "Presenters": [],
+            "Nominees": [],
+            "Winner": "Unknown"
+        },
+        "best animated feature film": {
+            "Presenters": [
+                "Sacha Baron Cohen"
+            ],
+            "Nominees": [
+                "Winner",
+                "GoldenGlobes"
+            ],
+            "Winner": "GoldenGlobes"
+        },
+        "best original song - motion picture": {
+            "Presenters": [],
+            "Nominees": [
+                "Skyfall"
+            ],
+            "Winner": "Skyfall"
+        },
+        "best performance by an actor in a motion picture - drama": {
+            "Presenters": [],
+            "Nominees": [
+                "Daniel Day-Lewis",
+                "Daniel Day-Lewis -"
+            ],
+            "Winner": "Unknown"
+        },
+        "best television series - comedy or musical": {
+            "Presenters": [],
+            "Nominees": [],
+            "Winner": "Unknown"
+        },
+        "best performance by an actor in a television series - drama": {
+            "Presenters": [],
+            "Nominees": [
+                "Damian Lewis"
+            ],
+            "Winner": "Damian Lewis"
+        },
+        "best performance by an actor in a television series - comedy or musical": {
+            "Presenters": [],
+            "Nominees": [],
+            "Winner": "Unknown"
+        }
+    }
+}

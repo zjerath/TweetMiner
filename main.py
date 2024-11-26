@@ -1,3 +1,4 @@
+import os
 import json
 import sys
 import pandas as pd
@@ -193,6 +194,19 @@ def process_red_carpet(df):
     )
     return human_readable_output
 
+# Funtion to save JSON and human-readable outputs to respective files."""
+def save_output_files(json_output, human_output, file_prefix):
+    json_file = f"output/{file_prefix}_answers.json"
+    human_file = f"output/{file_prefix}_output.txt"
+    # Write JSON output
+    with open(json_file, 'w') as f:
+        json.dump(json_output, f, indent=4)
+    # Write human-readable output
+    with open(human_file, 'w') as f:
+        f.write(human_output)
+    print(f"JSON output saved to {json_file}")
+    print(f"Human-readable output saved to {human_file}")
+
 # Function to use a hardcoded list of the awards and nominees to avoid cascading error
 '''This function DOES NOT output award names found by us. To see the answers with our
 generated award names included, must use the cascading_output function''' 
@@ -212,6 +226,8 @@ def hardcoded_output(df, hardcoded_award_names):
     json_output.update(award_json)
     # Red Carpet
     human_readable_output += process_red_carpet(df)
+    # Output
+    save_output_files(json_output, human_readable_output, "hardcoded")
     print(f"Human-readable format:\n{human_readable_output}")
     print(f"JSON format:\n{json.dumps(json_output, indent=4)}")
 
@@ -235,6 +251,8 @@ def cascading_output(df):
     json_output.update(award_json)
     # Red carpet
     human_readable_output += process_red_carpet(df)
+    # Output
+    save_output_files(json_output, human_readable_output, "cascading")
     print(f"Human-readable format:\n{human_readable_output}")
     print(f"JSON format:\n{json.dumps(json_output, indent=4)}")
 
@@ -242,6 +260,7 @@ def cascading_output(df):
 # e.g. 'python main.py 2013 True' calls main with 2013 data and hardcoded award names
 def main(year, use_hardcoded=False):
     df = preprocess_tweets(f"data/gg{year}.json")
+    os.makedirs("output", exist_ok=True)
     # If use_hardcoded, use the hardcoded award names to prevent cascading error
     if use_hardcoded:
         # This is for hard-coded stuff to prevent cascading error
